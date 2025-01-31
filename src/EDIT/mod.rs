@@ -157,24 +157,19 @@ unsafe extern "C" fn FUN_7100019c20(fighter: &mut L2CFighterCommon)
     lib::L2CValue::operator-(&LStack_80,(L2CValue *)&local_100);
     uVar5 = lib::L2CValue::operator<=(&LStack_a0,(L2CValue *)&local_70);
     if ((uVar5 & 1) == 0) // goto LAB_710001a1d8;↑
-    lib::L2CValue::L2CValue
-            ((L2CValue *)&local_100,
-             _FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_SPECIAL_S_IS_RAY_CHECK_RESULT);
+    lib::L2CValue::L2CValue((L2CValue *)&local_100,_FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_SPECIAL_S_IS_RAY_CHECK_RESULT);
     iVar4 = lib::L2CValue::as_integer((L2CValue *)&local_100);
-    bVar2 = WorkModule::is_flag
-                    (*(BattleObjectModuleAccessor **)((long)param_1 + 0x40),iVar4);
+    bVar2 = WorkModule::is_flag(*(BattleObjectModuleAccessor **)((long)param_1 + 0x40),iVar4);
     lib::L2CValue::L2CValue(&LStack_90,(bool)(bVar2 & 1));
     lib::L2CValue::L2CValue(&LStack_b0,0.0);
     lib::L2CValue::L2CValue(&LStack_c0,0.0);
     lib::L2CValue::L2CValue(&LStack_d0,0.0);
     cVar1 = (char)&stack0xfffffffffffffff0;
-    lua2cpp::L2CFighterBase::Vector3::create
-            (param_1,(L2CValue)(cVar1 + '`'),(L2CValue)(cVar1 + 'P'),(L2CValue)(cVar1 + '@'));
+    lua2cpp::L2CFighterBase::Vector3::create(param_1,(L2CValue)(cVar1 + '`'),(L2CValue)(cVar1 + 'P'),(L2CValue)(cVar1 + '@'));
     pLVar7 = (L2CValue *)lib::L2CValue::operator[](&LStack_a0,0x18cdc1683);
     this = (L2CValue *)lib::L2CValue::operator[](&LStack_a0,0x1fbdb2615);
     this_00 = (L2CValue *)lib::L2CValue::operator[](&LStack_a0,0x162d277af);
-    pfVar8 = (float *)PostureModule::pos
-                              (*(BattleObjectModuleAccessor **)((long)param_1 + 0x40));
+    pfVar8 = (float *)PostureModule::pos(*(BattleObjectModuleAccessor **)((long)param_1 + 0x40));
     lib::L2CValue::L2CValue((L2CValue *)&local_100,*pfVar8);
     lib::L2CValue::L2CValue(&LStack_f0,pfVar8[1]);
     lib::L2CValue::L2CValue(&LStack_e0,pfVar8[2]);
@@ -183,20 +178,16 @@ unsafe extern "C" fn FUN_7100019c20(fighter: &mut L2CFighterCommon)
     lib::L2CValue::operator=(this_00,(L2CValue *)&LStack_e0);
     lib::L2CValue::L2CValue(&LStack_110,0.0);
     pLVar9 = (L2CValue *)lib::L2CValue::operator[](&LStack_a0,0x1fbdb2615);
-    lib::L2CValue::L2CValue
-            ((L2CValue *)&local_70,_FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLOAT_SPECIAL_S_START_Y);
+    lib::L2CValue::L2CValue((L2CValue *)&local_70,_FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLOAT_SPECIAL_S_START_Y);
     iVar4 = lib::L2CValue::as_integer((L2CValue *)&local_70);
-    fVar11 = (float)WorkModule::get_float
-                            (*(BattleObjectModuleAccessor **)((long)param_1 + 0x40),iVar4);
+    fVar11 = (float)WorkModule::get_float(*(BattleObjectModuleAccessor **)((long)param_1 + 0x40),iVar4);
     lib::L2CValue::L2CValue((L2CValue *)&local_100,fVar11);
     uVar5 = lib::L2CValue::operator<((L2CValue *)&local_100,pLVar9);
     if ((uVar5 & 1) != 0) {
         pLVar7 = (L2CValue *)lib::L2CValue::operator[](&LStack_a0,0x1fbdb2615);
-        lib::L2CValue::L2CValue(&LStack_120,_FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLOAT_SPECIAL_S_START_Y)
-        ;
+        lib::L2CValue::L2CValue(&LStack_120,_FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLOAT_SPECIAL_S_START_Y);
         iVar4 = lib::L2CValue::as_integer(&LStack_120);
-        fVar11 = (float)WorkModule::get_float
-                              (*(BattleObjectModuleAccessor **)((long)param_1 + 0x40),iVar4);
+        fVar11 = (float)WorkModule::get_float(*(BattleObjectModuleAccessor **)((long)param_1 + 0x40),iVar4);
         lib::L2CValue::L2CValue((L2CValue *)&local_70,fVar11);
         lib::L2CValue::operator-(pLVar7,(L2CValue *)&local_70);
         lib::L2CValue::operator=(&LStack_110,(L2CValue *)&local_100);
@@ -208,8 +199,7 @@ unsafe extern "C" fn FUN_7100019c20(fighter: &mut L2CFighterCommon)
     lib::L2CValue::L2CValue(&LStack_120,fVar11);
     lib::L2CValue::L2CValue((L2CValue *)&local_100,_KINETIC_ENERGY_RESERVE_ATTRIBUTE_MAIN);
     iVar4 = lib::L2CValue::as_integer((L2CValue *)&local_100);
-    fVar11 = (float)KineticModule::get_sum_speed_y
-                            (*(BattleObjectModuleAccessor **)((long)param_1 + 0x40),iVar4);
+    fVar11 = (float)KineticModule::get_sum_speed_y(*(BattleObjectModuleAccessor **)((long)param_1 + 0x40),iVar4);
     lib::L2CValue::L2CValue(&LStack_130,fVar11);
     pLVar7 = (L2CValue *)lib::L2CValue::operator[](&LStack_a0,0x18cdc1683);
     lib::L2CValue::operator+(pLVar7,(L2CValue *)&LStack_120);
@@ -230,27 +220,20 @@ unsafe extern "C" fn FUN_7100019c20(fighter: &mut L2CFighterCommon)
     local_70._0_4_ = uVar12;
     uStack_68 = 0;
     bVar2 = lib::L2CValue::as_bool(&LStack_190);
-    bVar2 = GroundModule::ray_check
-                    (*(BattleObjectModuleAccessor **)((long)param_1 + 0x40),(Vector2f *)&local_100,
-                     (Vector2f *)&local_70,(bool)(bVar2 & 1));
+    bVar2 = GroundModule::ray_check(*(BattleObjectModuleAccessor **)((long)param_1 + 0x40),(Vector2f *)&local_100,(Vector2f *)&local_70,(bool)(bVar2 & 1));
     lib::L2CValue::L2CValue(&LStack_140,(bool)(bVar2 & 1));
     bVar3 = lib::L2CValue::operator.cast.to.bool(&LStack_140);
     if (bVar3) {
-        lib::L2CValue::L2CValue
-              ((L2CValue *)&local_100,
-               _FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_SPECIAL_S_IS_RAY_CHECK_RESULT);
+        lib::L2CValue::L2CValue((L2CValue *)&local_100,_FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_SPECIAL_S_IS_RAY_CHECK_RESULT);
         iVar4 = lib::L2CValue::as_integer((L2CValue *)&local_100);
         WorkModule::on_flag
               (*(BattleObjectModuleAccessor **)((long)param_1 + 0x40),iVar4);
     // LAB_710001a1a8:↑↑
     }
     else {
-        lib::L2CValue::L2CValue
-              ((L2CValue *)&local_100,
-               _FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_SPECIAL_S_IS_RAY_CHECK_RESULT);
+        lib::L2CValue::L2CValue((L2CValue *)&local_100,_FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_SPECIAL_S_IS_RAY_CHECK_RESULT);
         iVar4 = lib::L2CValue::as_integer((L2CValue *)&local_100);
-        WorkModule::off_flag
-                (*(BattleObjectModuleAccessor **)((long)param_1 + 0x40),iVar4);
+        WorkModule::off_flag(*(BattleObjectModuleAccessor **)((long)param_1 + 0x40),iVar4);
         bVar3 = lib::L2CValue::operator.cast.to.bool(&LStack_90);
         if (bVar3) {
             lib::L2CValue::L2CValue((L2CValue *)&local_100,_FIGHTER_KINETIC_ENERGY_ID_STOP);
@@ -263,7 +246,6 @@ unsafe extern "C" fn FUN_7100019c20(fighter: &mut L2CFighterCommon)
     }
     // LAB_710001a1d8:↑
     return;
-}*/
 }
 
 unsafe extern "C" fn special_s_blow_end(fighter: &mut L2CFighterCommon) -> L2CValue {
