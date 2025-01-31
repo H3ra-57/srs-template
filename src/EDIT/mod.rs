@@ -10,8 +10,8 @@ use {
     smashline::{*, Priority::*}
 };
 
-pub const SUB_STATUS = 0x15;
-pub const SITUATION_KIND = 0x16;
+pub const SUB_STATUS: i32 = 0x15;
+pub const SITUATION_KIND: i32 = 0x16;
 
 
 // SPECIAL_S
@@ -86,10 +86,10 @@ pub unsafe extern "C" fn special_s_blow_pre(fighter: &mut L2CFighterCommon) -> L
 
 unsafe extern "C" fn special_s_blow_main(fighter: &mut L2CFighterCommon) -> L2CValue {
 
-    WorkModule::off_flag(fighter.module_accessor, *FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_MTRANS_SMPL_AIR)
-    WorkModule::off_flag(fighter.module_accessor, *FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_MTRANS_SMPL_GROUND)
-    WorkModule::off_flag(fighter.module_accessor, *FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_MTRANS_SMPL_MOTION_END)
-    WorkModule::off_flag(fighter.module_accessor, *FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_MTRANS_SMPL_EX1)
+    WorkModule::off_flag(fighter.module_accessor, *FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_MTRANS_SMPL_AIR);
+    WorkModule::off_flag(fighter.module_accessor, *FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_MTRANS_SMPL_GROUND);
+    WorkModule::off_flag(fighter.module_accessor, *FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_MTRANS_SMPL_MOTION_END);
+    WorkModule::off_flag(fighter.module_accessor, *FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_MTRANS_SMPL_EX1);
     sv_kinetic_energy!(reset_energy, fighter, FIGHTER_KINETIC_ENERGY_ID_MOTION, ENERGY_MOTION_RESET_TYPE_GROUND_TRANS, 0.0, 0.0, 0.0, 0.0, 0.0);
     MotionModule::change_motion(fighter.module_accessor, Hash40::new("special_air_s_blow"), 0.0, 1.0, false, 0.0, false, false);
     /*if StopModule::is_stop(fighter.module_accessor) {
