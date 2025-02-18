@@ -1,15 +1,9 @@
-use {
-    smash::{
-        lua2cpp::*,
-        phx::*,
-        app::{sv_animcmd::*, lua_bind::*, *},
-        lib::{lua_const::*, L2CValue, L2CAgent},
-        hash40
-    },
-    smash_script::*,
-    smashline::{*, Priority::*}
-};
+use std::{hash, task::ready};
 
+use super::*;
+
+
+pub const CURRENT_FRAME:                    i32 = 0xE;
 pub const SUB_STATUS: i32 = 0x15;
 pub const SITUATION_KIND: i32 = 0x16;
 
@@ -61,7 +55,7 @@ pub unsafe extern "C" fn special_s_blow_pre(fighter: &mut L2CFighterCommon) -> L
         app::SituationKind(*SITUATION_KIND_AIR),
         *FIGHTER_KINETIC_TYPE_UNIQ,
         *GROUND_CORRECT_KIND_AIR as u32,
-        app::GroundCliffCheckKind(*GROUND_CLIFF_CHECK_KIND_BOTH_SIDES),
+        app::GroundCliffCheckKind(*GROUND_CLIFF_CHECK_KIND_ALWAYS_BOTH_SIDES),
         true,
         *FIGHTER_STATUS_WORK_KEEP_FLAG_NONE_FLAG,
         *FIGHTER_STATUS_WORK_KEEP_FLAG_NONE_INT,
@@ -94,153 +88,124 @@ unsafe extern "C" fn special_s_blow_main(fighter: &mut L2CFighterCommon) -> L2CV
     MotionModule::change_motion(fighter.module_accessor, Hash40::new("special_air_s_blow"), 0.0, 1.0, false, 0.0, false, false);
     /*if StopModule::is_stop(fighter.module_accessor) {
     }*/
-    fighter.global_table[SUB_STATUS].assign(&L2CValue::Ptr(special_s_blow_sub_status as *const () as _));
     fighter.sub_shift_status_main(L2CValue::Ptr(special_s_blow_main_loop as *const () as _))
 }
 
 unsafe extern "C" fn special_s_blow_main_loop(fighter: &mut L2CFighterCommon) -> L2CValue {
-    if !fighter.sub_transition_group_check_air_cliff().get_bool() {
-        if !CancelModule::is_enable_cancel(fighter.module_accessor) { 
-            // LAB_71000199bc:↑↑
-            if fighter.global_table[SITUATION_KIND] == SITUATION_KIND_AIR {
-                // LAB_7100019a94:↑↑↑
-                if !MotionModule::is_end(fighter.module_accessor) {
-                    // FUN_7100019c20(this);
-                    return 0.into();
-                } // end LAB_7100019a94:↑↑↑
-                fighter.change_status(*FIGHTER_STATUS_KIND_FALL.into(), false.into());
-            } // end LAB_71000199bc
-            else {
-                if WorkModule::get_int(fighter.module_accessor, *FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_INT_SPECIAL_S_DISABLE_LANDING_FRAME) >= 0 {
-                    if !MotionModule::is_end(fighter.module_accessor) {
-                        // FUN_7100019c20(this);
-                        return 0.into();
-                    }
-                }
-                fighter.change_status(*FIGHTER_LITTLEMAC_STATUS_KIND_SPECIAL_S_BLOW_END.into(), false.into());
-            }
-            pLVar5 = &LStack_40;
-        }
-        else { // if enable cancel
-            if fighter.sub_wait_ground_check_common(false.into()).get_bool() { // if sub wait ground check common
-                if !fighter.sub_air_check_fall_common(false.into()).get_bool() {
-                    iVar3 = 1;
-                } 
-                if fighter.global_table[SITUATION_KIND] == SITUATION_KIND_AIR {
-                    // LAB_7100019a94:↑↑↑
-                    if !MotionModule::is_end(fighter.module_accessor) {
-                        // FUN_7100019c20(this);
-                        return 0.into();
-                    } // end LAB_7100019a94:↑↑↑
-                    fighter.change_status(*FIGHTER_STATUS_KIND_FALL.into(), false.into());
-                }
-            }
-            pLVar5 = &LStack_50;
-        }
+    if fighter.sub_transition_group_check_air_cliff().get_bool() {
+        // println!("AIR_CLIFF main_loop");
+        return 1.into()
     }
-    // LAB_7100019b10:↑↑↑↑
-    iVar3 = 1;
-    // LAB_7100019b18:↑
-    lib::L2CValue::L2CValue(return_value,iVar3);
-    return;
-}
-unsafe extern "C" fn FUN_7100019c20(fighter: &mut L2CFighterCommon)
 
-{  
-    let ray_check_start_frame = WorkModule::get_param_int(fighter.module_accessor, hash40::new("param_special_s"), hash40::new("special_s_ray_check_start_frame_"));
-    lib::L2CValue::L2CValue(&LStack_80,iVar4);
-    lib::L2CValue::L2CValue(&LStack_90,_FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_INT_SPECIAL_S_FRAME_COUNT);
-    iVar4 = lib::L2CValue::as_integer(&LStack_90);
-    iVar4 = WorkModule::get_int(fighter.module_accessor, *FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_INT_SPECIAL_S_FRAME_COUNT);
-    lib::L2CValue::L2CValue((L2CValue *)&local_70,iVar4);
-    lib::L2CValue::L2CValue((L2CValue *)&local_100,1);
-    lib::L2CValue::operator-(&LStack_80,(L2CValue *)&local_100);
-    uVar5 = lib::L2CValue::operator<=(&LStack_a0,(L2CValue *)&local_70);
-    if ((uVar5 & 1) == 0) // goto LAB_710001a1d8;↑
-    lib::L2CValue::L2CValue((L2CValue *)&local_100,_FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_SPECIAL_S_IS_RAY_CHECK_RESULT);
-    iVar4 = lib::L2CValue::as_integer((L2CValue *)&local_100);
-    bVar2 = WorkModule::is_flag(*(BattleObjectModuleAccessor **)((long)param_1 + 0x40),iVar4);
-    lib::L2CValue::L2CValue(&LStack_90,(bool)(bVar2 & 1));
-    lib::L2CValue::L2CValue(&LStack_b0,0.0);
-    lib::L2CValue::L2CValue(&LStack_c0,0.0);
-    lib::L2CValue::L2CValue(&LStack_d0,0.0);
-    cVar1 = (char)&stack0xfffffffffffffff0;
-    lua2cpp::L2CFighterBase::Vector3::create(param_1,(L2CValue)(cVar1 + '`'),(L2CValue)(cVar1 + 'P'),(L2CValue)(cVar1 + '@'));
-    pLVar7 = (L2CValue *)lib::L2CValue::operator[](&LStack_a0,0x18cdc1683);
-    this = (L2CValue *)lib::L2CValue::operator[](&LStack_a0,0x1fbdb2615);
-    this_00 = (L2CValue *)lib::L2CValue::operator[](&LStack_a0,0x162d277af);
-    pfVar8 = (float *)PostureModule::pos(*(BattleObjectModuleAccessor **)((long)param_1 + 0x40));
-    lib::L2CValue::L2CValue((L2CValue *)&local_100,*pfVar8);
-    lib::L2CValue::L2CValue(&LStack_f0,pfVar8[1]);
-    lib::L2CValue::L2CValue(&LStack_e0,pfVar8[2]);
-    lib::L2CValue::operator=(pLVar7,(L2CValue *)&local_100);
-    lib::L2CValue::operator=(this,(L2CValue *)&LStack_f0);
-    lib::L2CValue::operator=(this_00,(L2CValue *)&LStack_e0);
-    lib::L2CValue::L2CValue(&LStack_110,0.0);
-    pLVar9 = (L2CValue *)lib::L2CValue::operator[](&LStack_a0,0x1fbdb2615);
-    lib::L2CValue::L2CValue((L2CValue *)&local_70,_FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLOAT_SPECIAL_S_START_Y);
-    iVar4 = lib::L2CValue::as_integer((L2CValue *)&local_70);
-    fVar11 = (float)WorkModule::get_float(*(BattleObjectModuleAccessor **)((long)param_1 + 0x40),iVar4);
-    lib::L2CValue::L2CValue((L2CValue *)&local_100,fVar11);
-    uVar5 = lib::L2CValue::operator<((L2CValue *)&local_100,pLVar9);
-    if ((uVar5 & 1) != 0) {
-        pLVar7 = (L2CValue *)lib::L2CValue::operator[](&LStack_a0,0x1fbdb2615);
-        lib::L2CValue::L2CValue(&LStack_120,_FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLOAT_SPECIAL_S_START_Y);
-        iVar4 = lib::L2CValue::as_integer(&LStack_120);
-        fVar11 = (float)WorkModule::get_float(*(BattleObjectModuleAccessor **)((long)param_1 + 0x40),iVar4);
-        lib::L2CValue::L2CValue((L2CValue *)&local_70,fVar11);
-        lib::L2CValue::operator-(pLVar7,(L2CValue *)&local_70);
-        lib::L2CValue::operator=(&LStack_110,(L2CValue *)&local_100);
+    if CancelModule::is_enable_cancel(fighter.module_accessor) {
+        // println!("CANCEL main_loop");
+        if fighter.sub_wait_ground_check_common(false.into()).get_bool()
+        || !fighter.sub_air_check_fall_common().get_bool() {
+            // println!("WAIT_GROUND main_loop");
+            return 1.into();
+        }
     }
-    lib::L2CValue::L2CValue((L2CValue *)&local_100,_KINETIC_ENERGY_RESERVE_ATTRIBUTE_MAIN);
-    iVar4 = lib::L2CValue::as_integer((L2CValue *)&local_100);
-    fVar11 = (float)KineticModule::get_sum_speed_x
-                            (*(BattleObjectModuleAccessor **)((long)param_1 + 0x40),iVar4);
-    lib::L2CValue::L2CValue(&LStack_120,fVar11);
-    lib::L2CValue::L2CValue((L2CValue *)&local_100,_KINETIC_ENERGY_RESERVE_ATTRIBUTE_MAIN);
-    iVar4 = lib::L2CValue::as_integer((L2CValue *)&local_100);
-    fVar11 = (float)KineticModule::get_sum_speed_y(*(BattleObjectModuleAccessor **)((long)param_1 + 0x40),iVar4);
-    lib::L2CValue::L2CValue(&LStack_130,fVar11);
-    pLVar7 = (L2CValue *)lib::L2CValue::operator[](&LStack_a0,0x18cdc1683);
-    lib::L2CValue::operator+(pLVar7,(L2CValue *)&LStack_120);
-    pLVar7 = (L2CValue *)lib::L2CValue::operator[](&LStack_a0,0x1fbdb2615);
-    lib::L2CValue::operator+(pLVar7,(L2CValue *)&LStack_130);
-    lib::L2CValue::L2CValue(&LStack_170,0.0);
-    lib::L2CValue::L2CValue((L2CValue *)&local_100,-1.0);
-    lib::L2CValue::operator-((L2CValue *)&local_100,(L2CValue *)&LStack_110);
-    lib::L2CValue::L2CValue(&LStack_190,true);
-    uVar12 = lib::L2CValue::as_number(&LStack_150);
-    uVar13 = lib::L2CValue::as_number(&LStack_160);
-    local_100._4_4_ = uVar13;
-    local_100._0_4_ = uVar12;
-    uStack_f8 = 0;
-    uVar12 = lib::L2CValue::as_number(&LStack_170);
-    uVar13 = lib::L2CValue::as_number(&LStack_180);
-    local_70._4_4_ = uVar13;
-    local_70._0_4_ = uVar12;
-    uStack_68 = 0;
-    bVar2 = lib::L2CValue::as_bool(&LStack_190);
-    bVar2 = GroundModule::ray_check(*(BattleObjectModuleAccessor **)((long)param_1 + 0x40),(Vector2f *)&local_100,(Vector2f *)&local_70,(bool)(bVar2 & 1));
-    lib::L2CValue::L2CValue(&LStack_140,(bool)(bVar2 & 1));
-    bVar3 = lib::L2CValue::operator.cast.to.bool(&LStack_140);
-    if (bVar3) {
-        lib::L2CValue::L2CValue((L2CValue *)&local_100,_FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_SPECIAL_S_IS_RAY_CHECK_RESULT);
-        iVar4 = lib::L2CValue::as_integer((L2CValue *)&local_100);
-        WorkModule::on_flag
-              (*(BattleObjectModuleAccessor **)((long)param_1 + 0x40),iVar4);
+
+    if MotionModule::is_end(fighter.module_accessor) {
+        if fighter.global_table[SITUATION_KIND] == SITUATION_KIND_AIR {
+            fighter.change_status(FIGHTER_STATUS_KIND_FALL.into(), false.into());
+        }
+        else {
+            if WorkModule::get_int(fighter.module_accessor,*FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_INT_SPECIAL_S_DISABLE_LANDING_FRAME) >= 0 {
+                fighter.change_status(FIGHTER_LITTLEMAC_STATUS_KIND_SPECIAL_S_BLOW_END.into(), false.into());
+            }
+        }
+    }
+    else {
+        special_s_ray_check_helper(fighter);
+    }
+    return 0.into();
+}
+
+    // if not motion end
+        // special_s_ray_check_helper
+    // else if air, fall, else if ground, special_s_blow_end
+        
+    /*if !fighter.sub_transition_group_check_air_cliff().get_bool() {
+        if !CancelModule::is_enable_cancel(fighter.module_accessor) {
+            // LAB_71000199bc:
+            if fighter.global_table[SITUATION_KIND] != SITUATION_KIND_GROUND {
+                // LAB_7100019a94:
+                if !MotionModule::is_end(fighter.module_accessor) {
+                    special_s_ray_check_helper(fighter);
+                    return 0.into(); // goto LAB_7100019b18;
+                }
+                fighter.change_status(FIGHTER_STATUS_KIND_FALL.into(), false.into());
+            }
+            else {
+                if WorkModule::get_int(fighter.module_accessor,*FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_INT_SPECIAL_S_DISABLE_LANDING_FRAME) >= 0 {
+                    // goto LAB_7100019a94;
+                    if !MotionModule::is_end(fighter.module_accessor) {
+                        special_s_ray_check_helper(fighter);
+                        return 0.into(); // goto LAB_7100019b18;
+                    }
+                } 
+                fighter.change_status(FIGHTER_LITTLEMAC_STATUS_KIND_SPECIAL_S_BLOW_END.into(), false.into());
+            }
+        }
+        else {
+            if fighter.sub_wait_ground_check_common(false.into()).get_bool() {
+                if !fighter.sub_air_check_fall_common().get_bool() { 
+                    return 1.into(); // goto LAB_7100019b10;
+                }
+                // goto LAB_71000199bc;
+                if fighter.global_table[SITUATION_KIND] != SITUATION_KIND_GROUND {
+                    // LAB_7100019a94:
+                    if !MotionModule::is_end(fighter.module_accessor) {
+                        special_s_ray_check_helper(fighter);
+                        return 0.into(); // goto LAB_7100019b18;
+                    }
+                    fighter.change_status(FIGHTER_STATUS_KIND_FALL.into(), false.into());
+                }
+                else {
+                    if WorkModule::get_int(fighter.module_accessor,*FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_INT_SPECIAL_S_DISABLE_LANDING_FRAME) >= 0 {
+                        // goto LAB_7100019a94;
+                    } 
+                    fighter.change_status(FIGHTER_LITTLEMAC_STATUS_KIND_SPECIAL_S_BLOW_END.into(), false.into());
+                }
+            }
+        }
+    }
+    return 1.into();
+}*/
+unsafe extern "C" fn special_s_ray_check_helper(fighter: &mut L2CFighterCommon) {  
+    let ray_check_start_frame = WorkModule::get_param_int(fighter.module_accessor,hash40("param_special_s"),hash40("special_s_ray_check_start_frame_"));
+    if WorkModule::get_int(fighter.module_accessor,*FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_INT_SPECIAL_S_FRAME_COUNT) > ray_check_start_frame - 1 { // goto LAB_710001a1d8;
+        return;
+    } 
+    let is_ray_check_result = WorkModule::is_flag(fighter.module_accessor,*FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_SPECIAL_S_IS_RAY_CHECK_RESULT);
+    let zero_vec = Vector3f{ x: 0.0, y: 0.0, z: 0.0 };
+    let mut pLVar7 = zero_vec.x;
+    let mut this = zero_vec.y;
+    let mut this_00 = zero_vec.z;
+    let pos = PostureModule::pos(fighter.module_accessor);
+    pLVar7 = (*pos).x;
+    this = (*pos).y;
+    this_00 = (*pos).z;
+    let mut LStack_110 = 0.0;
+    let pLVar9 = zero_vec.y;
+    if WorkModule::get_float(fighter.module_accessor,*FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLOAT_SPECIAL_S_START_Y) < pLVar9 {
+        pLVar7 = zero_vec.y;
+        LStack_110 = pLVar7 - WorkModule::get_float(fighter.module_accessor,*FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLOAT_SPECIAL_S_START_Y);
+    }
+    let sum_speed_x = KineticModule::get_sum_speed_x(fighter.module_accessor,*KINETIC_ENERGY_RESERVE_ATTRIBUTE_MAIN);
+    let sum_speed_y = KineticModule::get_sum_speed_y(fighter.module_accessor,*KINETIC_ENERGY_RESERVE_ATTRIBUTE_MAIN);
+    
+    let local_100 = Vector2f{ x: sum_speed_x, y: sum_speed_y };
+    let local_70 = Vector2f{ x: 0.0, y: -1.0-LStack_110 };
+    if GroundModule::ray_check(fighter.module_accessor,&local_100,&local_70,true) == 1 {
+        WorkModule::on_flag(fighter.module_accessor,*FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_SPECIAL_S_IS_RAY_CHECK_RESULT);
     // LAB_710001a1a8:↑↑
     }
     else {
-        lib::L2CValue::L2CValue((L2CValue *)&local_100,_FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_SPECIAL_S_IS_RAY_CHECK_RESULT);
-        iVar4 = lib::L2CValue::as_integer((L2CValue *)&local_100);
-        WorkModule::off_flag(*(BattleObjectModuleAccessor **)((long)param_1 + 0x40),iVar4);
-        bVar3 = lib::L2CValue::operator.cast.to.bool(&LStack_90);
-        if (bVar3) {
-            lib::L2CValue::L2CValue((L2CValue *)&local_100,_FIGHTER_KINETIC_ENERGY_ID_STOP);
-            pLVar7 = (L2CValue *)lib::L2CValue::operator[]((L2CValue *)((long)param_1 + 200),5);
-            iVar4 = lib::L2CValue::as_integer((L2CValue *)&local_100);
-            pBVar10 = (BattleObjectModuleAccessor *)lib::L2CValue::as_pointer(pLVar7);
-            app::KineticUtility::clear_unable_energy(iVar4,pBVar10);
+        WorkModule::off_flag(fighter.module_accessor,*FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_SPECIAL_S_IS_RAY_CHECK_RESULT);
+        if is_ray_check_result {
+            KineticUtility::clear_unable_energy(*FIGHTER_KINETIC_ENERGY_ID_STOP,fighter.module_accessor);
             // goto LAB_710001a1a8;↑↑
         }
     }
@@ -289,14 +254,25 @@ unsafe extern "C" fn special_s_blow_end_main(fighter: &mut L2CFighterCommon) -> 
     WorkModule::off_flag(fighter.module_accessor, *FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_MTRANS_SMPL_EX1);
 
     let prev_speed_x = KineticModule::get_sum_speed_x(fighter.module_accessor, *KINETIC_ENERGY_RESERVE_ATTRIBUTE_MAIN);
-    sv_kinetic_energy!(reset_energy, fighter, FIGHTER_KINETIC_ENERGY_ID_STOP, ENERGY_STOP_RESET_TYPE_GROUND, 0.0, 0.0, 0.0, 0.0, 0.0);
-    sv_kinetic_energy!(set_speed, fighter, FIGHTER_KINETIC_ENERGY_ID_STOP, prev_speed_x, 0.0);
+
+    fighter.clear_lua_stack();
+    lua_args!(fighter, FIGHTER_KINETIC_ENERGY_ID_STOP, ENERGY_STOP_RESET_TYPE_GROUND, 0.0, 0.0, 0.0, 0.0, 0.0);
+    app::sv_kinetic_energy::reset_energy(fighter.lua_state_agent);
+
+    fighter.clear_lua_stack();
+    lua_args!(fighter, FIGHTER_KINETIC_ENERGY_ID_STOP, prev_speed_x, 0.0);
+    app::sv_kinetic_energy::set_speed(fighter.lua_state_agent);
+
     KineticModule::enable_energy(fighter.module_accessor, *FIGHTER_KINETIC_ENERGY_ID_STOP);
 
-    sv_kinetic_energy!(reset_energy, fighter, FIGHTER_KINETIC_ENERGY_ID_MOTION, ENERGY_MOTION_RESET_TYPE_GROUND_TRANS, 0.0, 0.0, 0.0, 0.0, 0.0);
+    fighter.clear_lua_stack();
+    lua_args!(fighter, FIGHTER_KINETIC_ENERGY_ID_MOTION, ENERGY_MOTION_RESET_TYPE_GROUND_TRANS, 0.0, 0.0, 0.0, 0.0, 0.0);
+    app::sv_kinetic_energy::reset_energy(fighter.lua_state_agent);
     KineticModule::enable_energy(fighter.module_accessor, *FIGHTER_KINETIC_ENERGY_ID_MOTION);
     
-    sv_kinetic_energy!(reset_energy, fighter, FIGHTER_KINETIC_ENERGY_ID_GRAVITY, ENERGY_GRAVITY_RESET_TYPE_GRAVITY, 0.0, 0.0, 0.0, 0.0, 0.0);
+    fighter.clear_lua_stack();
+    lua_args!(fighter, FIGHTER_KINETIC_ENERGY_ID_GRAVITY, ENERGY_GRAVITY_RESET_TYPE_GRAVITY, 0.0, 0.0, 0.0, 0.0, 0.0);
+    app::sv_kinetic_energy::reset_energy(fighter.lua_state_agent);
     KineticModule::unable_energy(fighter.module_accessor, *FIGHTER_KINETIC_ENERGY_ID_GRAVITY);
 
     let mut prev_motion_frame = MotionModule::frame(fighter.module_accessor);
@@ -304,7 +280,7 @@ unsafe extern "C" fn special_s_blow_end_main(fighter: &mut L2CFighterCommon) -> 
         prev_motion_frame = 0.0;
     }
     MotionModule::change_motion(fighter.module_accessor, Hash40::new("special_s_blow_end"), prev_motion_frame, 1.0, false, 0.0, false, false);
-    fighter.main_shift(special_s_blow_end_main_loop)
+    fighter.sub_shift_status_main(L2CValue::Ptr(special_s_blow_end_main_loop as *const () as _))
 }
 
 unsafe extern "C" fn special_s_blow_end_main_loop(fighter: &mut L2CFighterCommon) -> L2CValue {
@@ -316,104 +292,306 @@ unsafe extern "C" fn special_s_blow_end_main_loop(fighter: &mut L2CFighterCommon
     if MotionModule::is_end(fighter.module_accessor)
     && fighter.global_table[CURRENT_FRAME].get_i32() >= landing_frame {
         if fighter.global_table[SITUATION_KIND] == SITUATION_KIND_GROUND {
-            fighter.change_status_req(*FIGHTER_STATUS_KIND_WAIT, false);
+            fighter.change_status(FIGHTER_STATUS_KIND_WAIT.into(), false.into());
         }
         else {
-            fighter.change_status_req(*FIGHTER_STATUS_KIND_FALL, false);
+            fighter.change_status(FIGHTER_STATUS_KIND_FALL.into(), false.into());
         }
         return 1.into();
     }
-    // <HDR>
-    if fighter.global_table[SITUATION_KIND] == SITUATION_KIND_AIR {
-        fighter.change_status_req(*FIGHTER_STATUS_KIND_FALL, false);
-        return 1.into();
-    }
-    // </HDR>
     0.into()
-    /*void ::thiscall
-L2CFighterLittlemac::status::SpecialSBlowEnd_main_loop
-          (L2CFighterLittlemac *this,L2CValue *return_value)
+}
 
-{
-  byte bVar1;
-  bool bVar2;
-  int iVar3;
-  ulong uVar4;
-  L2CValue *pLVar5;
-  ulong uVar6;
-  L2CValue *pLVar7;
-  L2CValue LStack_90;
-  L2CValue LStack_80;
-  L2CValue LStack_70;
-  L2CValue LStack_60;
-  L2CValue LStack_50;
-  
-  bVar1 = CancelModule::is_enable_cancel(fighter.module_accessor);
-  lib::L2CValue::L2CValue(&LStack_60,(bool)(bVar1 & 1));
-  lib::L2CValue::L2CValue(&LStack_50,true);
-  uVar4 = lib::L2CValue::operator==(&LStack_60,(L2CValue *)&LStack_50);
-  if ((uVar4 & 1) == 0) { if not enable cancel
-// LAB_71000194f0:
-    bVar1 = MotionModule::is_end(fighter.module_accessor);
-    lib::L2CValue::L2CValue(&LStack_50,(bool)(bVar1 & 1));
-    bVar2 = lib::L2CValue::operator.cast.to.bool(&LStack_50);
-    if (bVar2) { if is end
-      pLVar5 = (L2CValue *)lib::L2CValue::operator[](fighter.global_table,0xe);
-      lib::L2CValue::L2CValue(&LStack_70,0xfea97fe73);
-      lib::L2CValue::L2CValue(&LStack_90,0x1dcfe6525f);
-      uVar4 = lib::L2CValue::as_integer(&LStack_70);
-      uVar6 = lib::L2CValue::as_integer(&LStack_90);
-      iVar3 = WorkModule::get_param_int(fighter.module_accessor,uVar4,uVar6);
-      lib::L2CValue::L2CValue(&LStack_60,iVar3);
-      uVar4 = lib::L2CValue::operator<=(&LStack_60,pLVar5);
-      if ((uVar4 & 1) != 0) {
-        pLVar7 = (L2CValue *)lib::L2CValue::operator[](fighter.global_table,0x16);
-        lib::L2CValue::L2CValue(&LStack_50,_SITUATION_KIND_GROUND);
-        uVar4 = lib::L2CValue::operator==(pLVar7,(L2CValue *)&LStack_50);
-        if ((uVar4 & 1) == 0) {
-          lib::L2CValue::L2CValue(&LStack_50,_FIGHTER_STATUS_KIND_FALL);
-          lib::L2CValue::L2CValue(&LStack_60,false);
-          lua2cpp::L2CFighterBase::change_status(this,SUB81(&LStack_50,0),SUB81(&LStack_60,0));
-        }
-        else {
-          lib::L2CValue::L2CValue(&LStack_50,_FIGHTER_STATUS_KIND_WAIT);
-          lib::L2CValue::L2CValue(&LStack_60,false);
-          lua2cpp::L2CFighterBase::change_status(this,SUB81(&LStack_50,0),SUB81(&LStack_60,0));
-        }
-        pLVar7 = &LStack_50;
-        // goto LAB_710001967c;
-      }
+unsafe extern "C" fn special_s_blow_end_end(fighter: &mut L2CFighterCommon) -> L2CValue {
+    return 0.into();
+}
+
+// SPECIAL_S_JUMP
+unsafe extern "C" fn special_s_jump_pre(fighter: &mut L2CFighterCommon) -> L2CValue {
+    StatusModule::init_settings(
+        fighter.module_accessor,
+        app::SituationKind(*SITUATION_KIND_GROUND),
+        *FIGHTER_KINETIC_TYPE_UNIQ,
+        *GROUND_CORRECT_KIND_AIR as u32,
+        app::GroundCliffCheckKind(*GROUND_CLIFF_CHECK_KIND_NONE),
+        true,
+        *FIGHTER_STATUS_WORK_KEEP_FLAG_NONE_FLAG,
+        *FIGHTER_STATUS_WORK_KEEP_FLAG_NONE_INT,
+        *FIGHTER_STATUS_WORK_KEEP_FLAG_NONE_FLOAT,
+        0
+    );
+    FighterStatusModuleImpl::set_fighter_status_data(
+        fighter.module_accessor,
+        false,
+        *FIGHTER_TREADED_KIND_NO_REAC,
+        false,
+        false,
+        false,
+        (*FIGHTER_LOG_MASK_FLAG_ATTACK_KIND_SPECIAL_S | *FIGHTER_LOG_MASK_FLAG_ACTION_CATEGORY_ATTACK) as u64,
+        *FIGHTER_STATUS_ATTR_START_TURN as u32,
+        *FIGHTER_POWER_UP_ATTACK_BIT_SPECIAL_S as u32,
+        0
+    );
+
+    return 0.into();
+}
+
+unsafe extern "C" fn special_s_jump_main(fighter: &mut L2CFighterCommon) -> L2CValue {
+    WorkModule::off_flag(fighter.module_accessor, *FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_MTRANS_SMPL_AIR);
+    WorkModule::off_flag(fighter.module_accessor, *FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_MTRANS_SMPL_GROUND);
+    WorkModule::off_flag(fighter.module_accessor, *FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_MTRANS_SMPL_MOTION_END);
+    WorkModule::off_flag(fighter.module_accessor, *FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_MTRANS_SMPL_EX1);
+    WorkModule::off_flag(fighter.module_accessor,*FIGHTER_LITTLEMAC_STATUS_SPECIAL_S_FLAG_IS_BLOW_SHIFT);
+
+    let mut landing_frame = 0;
+    let mut landing_disable_frame = 0;
+    let mut jump_brake_x = 0.0;
+    let mut jump_x_speed = 0.0;
+    let mut jump_y_speed = 0.0;
+    if fighter.global_table[SITUATION_KIND] != SITUATION_KIND_GROUND {
+        MotionModule::change_motion(fighter.module_accessor, Hash40::new("special_air_s_jump"), 0.0, 1.0, false, 0.0, false, false);
+        
+        fighter.clear_lua_stack();
+        lua_args!(fighter, FIGHTER_KINETIC_ENERGY_ID_STOP, ENERGY_STOP_RESET_TYPE_AIR, 0.0, 0.0, 0.0, 0.0, 0.0);
+        app::sv_kinetic_energy::reset_energy(fighter.lua_state_agent);
+        jump_x_speed = WorkModule::get_param_float(fighter.module_accessor,hash40("param_special_s"),hash40("special_s_jump_x_speed_air_")) * PostureModule::lr(fighter.module_accessor);
+        jump_y_speed = WorkModule::get_param_float(fighter.module_accessor,hash40("param_special_s"),hash40("special_s_jump_y_speed_air_"));
     }
     else {
+        MotionModule::change_motion(fighter.module_accessor, Hash40::new("special_s_jump"), 0.0, 1.0, false, 0.0, false, false);
+
+        fighter.clear_lua_stack();
+        lua_args!(fighter, FIGHTER_KINETIC_ENERGY_ID_STOP, ENERGY_STOP_RESET_TYPE_GROUND, 0.0, 0.0, 0.0, 0.0, 0.0);
+        app::sv_kinetic_energy::reset_energy(fighter.lua_state_agent);
+        jump_x_speed = WorkModule::get_param_float(fighter.module_accessor,hash40("param_special_s"),hash40("special_s_jump_x_speed_")) * PostureModule::lr(fighter.module_accessor);
+        jump_y_speed = WorkModule::get_param_float(fighter.module_accessor,hash40("param_special_s"),hash40("special_s_jump_y_speed_"));
     }
-    iVar3 = 0;
-  }
-  else { if enable cancel
-    lib::L2CValue::L2CValue(&LStack_80,false);
-    lua2cpp::L2CFighterCommon::sub_wait_ground_check_common(this,SUB81(&LStack_80,0));
-    lib::L2CValue::L2CValue(&LStack_50,false);
-    uVar4 = lib::L2CValue::operator==(&LStack_70,(L2CValue *)&LStack_50);
-    if ((uVar4 & 1) == 0) { if not sub wait
-      pLVar7 = &LStack_60;
-// LAB_710001967c:
+    StatusModule::set_situation_kind(fighter.module_accessor, SituationKind(*SITUATION_KIND_AIR), false);
+    fighter.clear_lua_stack();
+    lua_args!(fighter, FIGHTER_KINETIC_ENERGY_ID_STOP, ENERGY_STOP_RESET_TYPE_AIR, 0.0, 0.0, 0.0, 0.0, 0.0);
+    app::sv_kinetic_energy::reset_energy(fighter.lua_state_agent);
+
+    fighter.clear_lua_stack();
+    lua_args!(fighter, FIGHTER_KINETIC_ENERGY_ID_STOP, jump_x_speed, 0.0);
+    app::sv_kinetic_energy::set_speed(fighter.lua_state_agent);
+    jump_brake_x = WorkModule::get_param_float(fighter.module_accessor,hash40("param_special_s"),hash40("special_s_jump_brake_x_"));
+    
+    fighter.clear_lua_stack();
+    lua_args!(fighter, FIGHTER_KINETIC_ENERGY_ID_STOP, 0.0, 0.0);
+    app::sv_kinetic_energy::set_accel(fighter.lua_state_agent);
+
+    fighter.clear_lua_stack();
+    lua_args!(fighter, FIGHTER_KINETIC_ENERGY_ID_STOP, jump_brake_x, 0.0);
+    app::sv_kinetic_energy::set_brake(fighter.lua_state_agent);
+    
+    KineticModule::enable_energy(fighter.module_accessor,*FIGHTER_KINETIC_ENERGY_ID_STOP);
+    let fVar10 = -WorkModule::get_float(fighter.module_accessor,*FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLOAT_AIR_ACCEL_Y);
+    
+    fighter.clear_lua_stack();
+    lua_args!(fighter, FIGHTER_KINETIC_ENERGY_ID_GRAVITY, fVar10, 0.0);
+    app::sv_kinetic_energy::set_accel(fighter.lua_state_agent);
+    KineticModule::unable_energy(fighter.module_accessor,*FIGHTER_KINETIC_ENERGY_ID_CONTROL);
+    
+    landing_frame = WorkModule::get_param_int(fighter.module_accessor,hash40("param_special_s"),hash40("special_s_end_landing_frame_"));
+    WorkModule::set_float(fighter.module_accessor,landing_frame as f32,*FIGHTER_INSTANCE_WORK_ID_FLOAT_LANDING_FRAME);
+    
+    landing_disable_frame = WorkModule::get_param_int(fighter.module_accessor,hash40("param_special_s"),hash40("special_s_jump_landing_disable_frame_"));
+    WorkModule::set_int(fighter.module_accessor,landing_disable_frame,*FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_INT_SPECIAL_S_DISABLE_LANDING_FRAME);
+    if !StopModule::is_stop(fighter.module_accessor) {
+        WorkModule::dec_int(fighter.module_accessor,*FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_INT_SPECIAL_S_DISABLE_LANDING_FRAME);
+        WorkModule::inc_int(fighter.module_accessor,*FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_INT_SPECIAL_S_FRAME_COUNT);
     }
-    else { if sub wait
-      lua2cpp::L2CFighterCommon::sub_air_check_fall_common(this);
-      lib::L2CValue::L2CValue(&LStack_50,false);
-      uVar4 = lib::L2CValue::operator==(&LStack_90,(L2CValue *)&LStack_50);
-      if ((uVar4 & 1) != 0) // goto LAB_71000194f0; if sub air check fall
+    else {
+        WorkModule::dec_int(fighter.module_accessor,*FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_INT_SPECIAL_S_DISABLE_LANDING_FRAME);
+        WorkModule::inc_int(fighter.module_accessor,*FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_INT_SPECIAL_S_FRAME_COUNT);
     }
-    iVar3 = 1;
-  }
-  lib::L2CValue::L2CValue(return_value,iVar3);
-  return;
-}*/
+    
+    WorkModule::unable_transition_term(fighter.module_accessor,*FIGHTER_STATUS_TRANSITION_TERM_ID_CONT_SPECIAL_S);
+    WorkModule::on_flag(fighter.module_accessor,*FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_DISABLE_SPECIAL_S);
+    
+    
+    WorkModule::unable_transition_term(fighter.module_accessor, *FIGHTER_STATUS_TRANSITION_TERM_ID_CONT_SPECIAL_S);
+    WorkModule::on_flag(fighter.module_accessor, *FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_DISABLE_SPECIAL_S);
+    let pos = PostureModule::pos(fighter.module_accessor);
+    WorkModule::set_float(fighter.module_accessor, (*pos).y, *FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLOAT_SPECIAL_S_START_Y);
+    WorkModule::set_int(fighter.module_accessor, 0, *FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_INT_SPECIAL_S_FRAME_COUNT);
+    WorkModule::off_flag(fighter.module_accessor, *FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_SPECIAL_S_IS_RAY_CHECK_RESULT);
+    fighter.sub_shift_status_main(L2CValue::Ptr(special_s_jump_main_loop as *const () as _))
+
+}
+
+/*lib::L2CValue::L2CValue(&LStack_168,0.0);
+    lib::L2CValue::L2CValue(&LStack_178,0.0);
+    lib::L2CValue::L2CValue(&LStack_188,0.0);
+    lua2cpp::L2CFighterBase::Vector3::create(this,SUB81(&LStack_168,0),SUB81(&LStack_178,0),SUB81(&LStack_188,0));
+    pLVar4 = (L2CValue *)lib::L2CValue::operator[](&LStack_d8,x);
+    this_00 = (L2CValue *)lib::L2CValue::operator[](&LStack_d8,y);
+    this_01 = (L2CValue *)lib::L2CValue::operator[](&LStack_d8,z);
+    pfVar8 = PostureModule::pos(fighter.module_accessor);
+    lib::L2CValue::L2CValue(&LStack_1b8,*pfVar8);
+    lib::L2CValue::L2CValue(&LStack_1a8,pfVar8[1]);
+    lib::L2CValue::L2CValue(&LStack_198,pfVar8[2]);
+    lib::L2CValue::operator=(pLVar4,(L2CValue *)&LStack_1b8);
+    lib::L2CValue::operator=(this_00,(L2CValue *)&LStack_1a8);
+    lib::L2CValue::operator=(this_01,(L2CValue *)&LStack_198);
+    pLVar4 = (L2CValue *)lib::L2CValue::operator[](&LStack_d8,y);
+    let zero_vector = Vector3f{x: 0.0, y: 0.0, z: 0.0};
+    let pLVar4 = zero_vector.x;
+    let this_00 = zero_vector.y;
+    let this_01 = zero_vector.z;
+    let pos = PostureModule::pos(fighter.module_accessor);
+    let LStack_1b8 = pos.x; 
+    let LStack_1a8 = pos.y;
+    let LStack_198 = pos.z;
+    pLVar4 = LStack_1b8;
+    this_00 = LStack_1a8;
+    this_01 = LStack_198;
+    pLVar4 = LStack_1a8;
+    lib::L2CValue::L2CValue(&LStack_1b8,0.0);
+    lib::L2CValue::operator+(pLVar4,(L2CValue *)&LStack_1b8,(L2CValue *)&LStack_e8);
+    lib::L2CValue::L2CValue(&LStack_1b8,*FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLOAT_SPECIAL_S_START_Y);
+    fVar10 = (float)lib::L2CValue::as_number(&LStack_e8);
+    iVar2 = lib::L2CValue::as_integer(&LStack_1b8);
+    WorkModule::set_float(fighter.module_accessor,fVar10,iVar2);
+    lib::L2CValue::L2CValue(&LStack_1b8,0);
+    lib::L2CValue::L2CValue(&LStack_e8,_FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_INT_SPECIAL_S_FRAME_COUNT);
+    iVar2 = lib::L2CValue::as_integer(&LStack_1b8);
+    iVar3 = lib::L2CValue::as_integer(&LStack_e8);
+    WorkModule::set_int(fighter.module_accessor,iVar2,iVar3);
+    lib::L2CValue::L2CValue(&LStack_1b8,_FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_SPECIAL_S_IS_RAY_CHECK_RESULT);
+    iVar2 = lib::L2CValue::as_integer(&LStack_1b8);
+    WorkModule::off_flag(fighter.module_accessor,iVar2);
+    lib::L2CValue::L2CValue(&LStack_1c8,&LAB_710001bc10);
+    lua2cpp::L2CFighterCommon::sub_shift_status_main(this,SUB81(&LStack_1c8,0));*/
+
+unsafe extern "C" fn special_s_jump_main_loop(fighter: &mut L2CFighterCommon) -> L2CValue {
+    if fighter.global_table[SITUATION_KIND] == SITUATION_KIND_GROUND {
+        if WorkModule::get_int(fighter.module_accessor,*FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_INT_SPECIAL_S_DISABLE_LANDING_FRAME) < 0 {
+            let sum_speed_x = KineticModule::get_sum_speed_x(fighter.module_accessor,*KINETIC_ENERGY_RESERVE_ATTRIBUTE_MAIN);
+            fighter.clear_lua_stack();
+            lua_args!(fighter, FIGHTER_KINETIC_ENERGY_ID_STOP, ENERGY_STOP_RESET_TYPE_GROUND, 0.0, 0.0, 0.0, 0.0, 0.0);
+            app::sv_kinetic_energy::reset_energy(fighter.lua_state_agent);
+            
+            fighter.clear_lua_stack();
+            lua_args!(fighter, FIGHTER_KINETIC_ENERGY_ID_STOP, sum_speed_x, 0.0);
+            app::sv_kinetic_energy::set_speed(fighter.lua_state_agent);
+            
+            KineticModule::enable_energy(fighter.module_accessor,*FIGHTER_KINETIC_ENERGY_ID_STOP);
+            fighter.change_status(FIGHTER_STATUS_KIND_LANDING_FALL_SPECIAL.into(), false.into());
+            return 1.into();
+        }
+    }
+    if MotionModule::is_end(fighter.module_accessor) {
+        fighter.change_status(FIGHTER_LITTLEMAC_STATUS_KIND_SPECIAL_S_BLOW.into(), false.into());
+        return 1.into();
+    }
+    let mut frame = false;
+    if MotionModule::frame(fighter.module_accessor) > WorkModule::get_param_int(fighter.module_accessor,hash40("param_special_s"),hash40("special_s_jump_attack_shift_frame_min_")) as f32 {
+        if ControlModule::check_button_trigger(fighter.module_accessor,*CONTROL_PAD_BUTTON_SPECIAL) {
+            frame = fighter.global_table[CURRENT_FRAME].get_i32() >= 0;
+        }
+        else {
+            if ControlModule::check_button_trigger(fighter.module_accessor,*CONTROL_PAD_BUTTON_ATTACK) {
+                frame = fighter.global_table[CURRENT_FRAME].get_i32() >= 0;
+                return 0.into();
+            }
+        }
+    }
+    
+    if frame {
+        WorkModule::on_flag(fighter.module_accessor,*FIGHTER_LITTLEMAC_STATUS_SPECIAL_S_FLAG_IS_BLOW_SHIFT);
+    }
+    if WorkModule::is_flag(fighter.module_accessor,*FIGHTER_LITTLEMAC_STATUS_SPECIAL_S_FLAG_IS_BLOW_SHIFT) {
+        fighter.change_status(FIGHTER_LITTLEMAC_STATUS_KIND_SPECIAL_S_BLOW.into(), false.into());
+        return 1.into();
+    }
+    special_s_ray_check_helper(fighter);
+    return 0.into();
+}
+
+unsafe extern "C" fn special_s_jump_end(fighter: &mut L2CFighterCommon) -> L2CValue {
+    return 0.into()
+}
+
+// SPECIAL_S_JUMP_END
+unsafe extern "C" fn special_s_jump_end_pre(fighter: &mut L2CFighterCommon) -> L2CValue {
+    StatusModule::init_settings(
+        fighter.module_accessor,
+        app::SituationKind(*SITUATION_KIND_GROUND),
+        *FIGHTER_KINETIC_TYPE_UNIQ,
+        *GROUND_CORRECT_KIND_KEEP as u32,
+        app::GroundCliffCheckKind(*GROUND_CLIFF_CHECK_KIND_NONE),
+        true,
+        *FIGHTER_STATUS_WORK_KEEP_FLAG_NONE_FLAG,
+        *FIGHTER_STATUS_WORK_KEEP_FLAG_NONE_INT,
+        *FIGHTER_STATUS_WORK_KEEP_FLAG_NONE_FLOAT,
+        0
+    );
+    FighterStatusModuleImpl::set_fighter_status_data(
+        fighter.module_accessor,
+        false,
+        *FIGHTER_TREADED_KIND_NO_REAC,
+        false,
+        false,
+        false,
+        (*FIGHTER_LOG_MASK_FLAG_ATTACK_KIND_SPECIAL_S | *FIGHTER_LOG_MASK_FLAG_ACTION_CATEGORY_ATTACK) as u64,
+        0,
+        *FIGHTER_POWER_UP_ATTACK_BIT_SPECIAL_S as u32,
+        0
+    );
+
+    return 0.into();
+}
+
+unsafe extern "C" fn special_s_jump_end_main(fighter: &mut L2CFighterCommon) -> L2CValue {
+    WorkModule::off_flag(fighter.module_accessor, *FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_MTRANS_SMPL_AIR);
+    WorkModule::off_flag(fighter.module_accessor, *FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_MTRANS_SMPL_GROUND);
+    WorkModule::off_flag(fighter.module_accessor, *FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_MTRANS_SMPL_MOTION_END);
+    WorkModule::off_flag(fighter.module_accessor, *FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_MTRANS_SMPL_EX1);
+    MotionModule::change_motion(fighter.module_accessor, Hash40::new("special_s_jump_end"), 0.0, 1.0, false, 0.0, false, false);
+    fighter.sub_shift_status_main(L2CValue::Ptr(special_s_jump_end_main_loop as *const () as _))
+}
+
+unsafe extern "C" fn special_s_jump_end_main_loop(fighter: &mut L2CFighterCommon) -> L2CValue {
+    if CancelModule::is_enable_cancel(fighter.module_accessor) && (fighter.sub_wait_ground_check_common(false.into()).get_bool() || fighter.sub_air_check_fall_common().get_bool()) {
+        return 1.into();
+    }
+    if MotionModule::is_end(fighter.module_accessor) {
+        if fighter.global_table[SITUATION_KIND] == SITUATION_KIND_GROUND {
+            fighter.change_status(FIGHTER_STATUS_KIND_WAIT.into(), false.into());
+        }
+        else {
+            fighter.change_status(FIGHTER_STATUS_KIND_FALL.into(), false.into());
+        }
+        return 1.into();
+    }
+    0.into()
+}
+
+unsafe extern "C" fn special_s_jump_end_end(fighter: &mut L2CFighterCommon) -> L2CValue {
+    return 0.into()
 }
 
 pub fn install() {
     Agent::new("littlemac")
-        .status(Pre, *FIGHTER_LITTLEMAC_STATUS_KIND_SPECIAL_S, special_s_pre)
-        .status(Main, *FIGHTER_LITTLEMAC_STATUS_KIND_SPECIAL_S, special_s_main)
-        .status(End, *FIGHTER_LITTLEMAC_STATUS_KIND_SPECIAL_S, special_s_end)
+        .status(Pre, *FIGHTER_STATUS_KIND_SPECIAL_S, special_s_pre)
+        .status(Main, *FIGHTER_STATUS_KIND_SPECIAL_S, special_s_main)
+        .status(End, *FIGHTER_STATUS_KIND_SPECIAL_S, special_s_end)
+
+        .status(Pre, *FIGHTER_LITTLEMAC_STATUS_KIND_SPECIAL_S_JUMP, special_s_jump_pre)
+        .status(Main, *FIGHTER_LITTLEMAC_STATUS_KIND_SPECIAL_S_JUMP, special_s_jump_main)
+        .status(End, *FIGHTER_LITTLEMAC_STATUS_KIND_SPECIAL_S_JUMP, special_s_jump_end)
+
+        .status(Pre, *FIGHTER_LITTLEMAC_STATUS_KIND_SPECIAL_S_JUMP_END, special_s_jump_end_pre)
+        .status(Main, *FIGHTER_LITTLEMAC_STATUS_KIND_SPECIAL_S_JUMP_END, special_s_jump_end_main)
+        .status(End, *FIGHTER_LITTLEMAC_STATUS_KIND_SPECIAL_S_JUMP_END, special_s_jump_end_end)
+
+        .status(Pre, *FIGHTER_LITTLEMAC_STATUS_KIND_SPECIAL_S_BLOW, special_s_blow_pre)
+        .status(Main, *FIGHTER_LITTLEMAC_STATUS_KIND_SPECIAL_S_BLOW, special_s_blow_main)
+        .status(End, *FIGHTER_LITTLEMAC_STATUS_KIND_SPECIAL_S_BLOW, special_s_blow_end)
+
+        .status(Pre, *FIGHTER_LITTLEMAC_STATUS_KIND_SPECIAL_S_BLOW_END, special_s_blow_end_pre)
+        .status(Main, *FIGHTER_LITTLEMAC_STATUS_KIND_SPECIAL_S_BLOW_END, special_s_blow_end_main)
+        .status(End, *FIGHTER_LITTLEMAC_STATUS_KIND_SPECIAL_S_BLOW_END, special_s_blow_end_end)
         .install();
 }
