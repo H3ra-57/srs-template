@@ -1,14 +1,11 @@
-use {
-    smash::{
-        lua2cpp::*,
-        phx::*,
-        app::{sv_animcmd::*, lua_bind::*, *},
-        lib::{lua_const::*, L2CValue, L2CAgent},
-        hash40
-    },
-    smash_script::*,
-    smashline::{*, Priority::*}
-};
+use std::{hash, task::ready};
+
+use super::*;
+
+
+pub const CURRENT_FRAME: i32 = 0xE;
+pub const SUB_STATUS: i32 = 0x15;
+pub const SITUATION_KIND: i32 = 0x16;
 
 // Game acmd script
 unsafe extern "C" fn example_acmd_script(agent: &mut L2CAgentBase) {

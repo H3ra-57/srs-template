@@ -15,6 +15,31 @@
 
 mod EDIT;
 
+use smash::{
+    lib::{
+        L2CValue,
+        LuaConst,
+    },
+    app::{
+        *,
+        self,
+        sv_animcmd::{
+            frame,
+            wait
+        },
+        lua_bind::*
+    },
+    hash40,
+    lib::lua_const::*,
+    lua2cpp::*,
+    phx::*
+};
+use smash_script::{
+    *,
+    macros::*
+};
+use smashline::*;
+
 #[skyline::main(name = "smashline_test")]
 pub fn main() {
     EDIT::install();
