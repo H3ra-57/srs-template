@@ -86,37 +86,46 @@ unsafe extern "C" fn special_s_blow_main(fighter: &mut L2CFighterCommon) -> L2CV
     WorkModule::off_flag(fighter.module_accessor, *FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_MTRANS_SMPL_EX1);
     sv_kinetic_energy!(reset_energy, fighter, FIGHTER_KINETIC_ENERGY_ID_MOTION, ENERGY_MOTION_RESET_TYPE_GROUND_TRANS, 0.0, 0.0, 0.0, 0.0, 0.0);
     MotionModule::change_motion(fighter.module_accessor, Hash40::new("special_air_s_blow"), 0.0, 1.0, false, 0.0, false, false);
-    /*if StopModule::is_stop(fighter.module_accessor) {
-    }*/
+    if !StopModule::is_stop(fighter.module_accessor) {
+        special_s_substatus(fighter, false.into());
+    }
+    fighter.global_table[SUB_STATUS].assign(&L2CValue::Ptr(special_s_substatus as *const () as _));
     fighter.sub_shift_status_main(L2CValue::Ptr(special_s_blow_main_loop as *const () as _))
 }
 
 unsafe extern "C" fn special_s_blow_main_loop(fighter: &mut L2CFighterCommon) -> L2CValue {
     if fighter.sub_transition_group_check_air_cliff().get_bool() {
-        // println!("AIR_CLIFF main_loop");
+        println!("AIR_CLIFF main_loop");
         return 1.into()
     }
 
     if CancelModule::is_enable_cancel(fighter.module_accessor) {
-        // println!("CANCEL main_loop");
+        println!("CANCEL main_loop");
         if fighter.sub_wait_ground_check_common(false.into()).get_bool()
         || !fighter.sub_air_check_fall_common().get_bool() {
-            // println!("WAIT_GROUND main_loop");
+            println!("WAIT_GROUND main_loop");
             return 1.into();
         }
     }
 
     if MotionModule::is_end(fighter.module_accessor) {
+        println!("MOTION_END main_loop");
         if fighter.global_table[SITUATION_KIND] == SITUATION_KIND_AIR {
+            println!("AIR main_loop");
             fighter.change_status(FIGHTER_STATUS_KIND_FALL.into(), false.into());
+            return 1.into();
         }
         else {
+            println!("GROUND main_loop");
             if WorkModule::get_int(fighter.module_accessor,*FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_INT_SPECIAL_S_DISABLE_LANDING_FRAME) >= 0 {
+                println!("LANDING_FRAME main_loop");
                 fighter.change_status(FIGHTER_LITTLEMAC_STATUS_KIND_SPECIAL_S_BLOW_END.into(), false.into());
+                return 1.into();
             }
         }
     }
     else {
+        println!("NOT_MOTION_END main_loop");
         special_s_ray_check_helper(fighter);
     }
     return 0.into();
@@ -289,10 +298,11 @@ unsafe extern "C" fn special_s_blow_end_main_loop(fighter: &mut L2CFighterCommon
         return 1.into();
     }
     let landing_frame = WorkModule::get_param_int(fighter.module_accessor, hash40("param_special_s"), hash40("special_s_blow_landing_frame_"));
-    if MotionModule::is_end(fighter.module_accessor)
-    && fighter.global_table[CURRENT_FRAME].get_i32() >= landing_frame {
+    if MotionModule::is_end(fighter.module_accessor) {
         if fighter.global_table[SITUATION_KIND] == SITUATION_KIND_GROUND {
-            fighter.change_status(FIGHTER_STATUS_KIND_WAIT.into(), false.into());
+            if fighter.global_table[CURRENT_FRAME].get_i32() >= landing_frame {
+                fighter.change_status(FIGHTER_STATUS_KIND_WAIT.into(), false.into());
+            }
         }
         else {
             fighter.change_status(FIGHTER_STATUS_KIND_FALL.into(), false.into());
@@ -398,14 +408,10 @@ unsafe extern "C" fn special_s_jump_main(fighter: &mut L2CFighterCommon) -> L2CV
     landing_disable_frame = WorkModule::get_param_int(fighter.module_accessor,hash40("param_special_s"),hash40("special_s_jump_landing_disable_frame_"));
     WorkModule::set_int(fighter.module_accessor,landing_disable_frame,*FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_INT_SPECIAL_S_DISABLE_LANDING_FRAME);
     if !StopModule::is_stop(fighter.module_accessor) {
-        WorkModule::dec_int(fighter.module_accessor,*FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_INT_SPECIAL_S_DISABLE_LANDING_FRAME);
-        WorkModule::inc_int(fighter.module_accessor,*FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_INT_SPECIAL_S_FRAME_COUNT);
+        special_s_substatus(fighter, false.into());
     }
-    else {
-        WorkModule::dec_int(fighter.module_accessor,*FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_INT_SPECIAL_S_DISABLE_LANDING_FRAME);
-        WorkModule::inc_int(fighter.module_accessor,*FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_INT_SPECIAL_S_FRAME_COUNT);
-    }
-    
+
+    fighter.global_table[SUB_STATUS].assign(&L2CValue::Ptr(special_s_substatus as *const () as _));
     WorkModule::unable_transition_term(fighter.module_accessor,*FIGHTER_STATUS_TRANSITION_TERM_ID_CONT_SPECIAL_S);
     WorkModule::on_flag(fighter.module_accessor,*FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_DISABLE_SPECIAL_S);
     
@@ -418,6 +424,14 @@ unsafe extern "C" fn special_s_jump_main(fighter: &mut L2CFighterCommon) -> L2CV
     WorkModule::off_flag(fighter.module_accessor, *FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_FLAG_SPECIAL_S_IS_RAY_CHECK_RESULT);
     fighter.sub_shift_status_main(L2CValue::Ptr(special_s_jump_main_loop as *const () as _))
 
+}
+
+unsafe extern "C" fn special_s_substatus(fighter: &mut L2CFighterCommon, param_1: L2CValue) -> L2CValue {
+    if param_1.get_bool() {
+        WorkModule::dec_int(fighter.module_accessor, *FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_INT_SPECIAL_S_DISABLE_LANDING_FRAME);
+        WorkModule::inc_int(fighter.module_accessor, *FIGHTER_LITTLEMAC_INSTANCE_WORK_ID_INT_SPECIAL_S_FRAME_COUNT);
+    }
+    0.into()
 }
 
 /*lib::L2CValue::L2CValue(&LStack_168,0.0);
