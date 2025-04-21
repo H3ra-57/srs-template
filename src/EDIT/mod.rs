@@ -8,15 +8,6 @@ pub const SUB_STATUS: i32 = 0x15;
 pub const SITUATION_KIND: i32 = 0x16;
 pub const PREV_SITUATION_KIND: i32 = 0x17;
 
-pub static initial_speed_y : f32 = 0.3;
-pub static gravity_speed : f32 = 0.25;
-pub static gravity_accel_y : f32 = 0.19;
-pub static landing_frame : f32 = 11.0;
-
-pub static warp_speed_mul : f32 = 2.2;
-pub static warp_speed_add : f32 = 0.5;
-pub static max_frame : i32 = 20;
-
 static mut WARP_FRAME : [i32; 8] = [0; 8];
 
 // Game acmd script
@@ -24,19 +15,19 @@ unsafe extern "C" fn game_specialhi(agent: &mut L2CAgentBase) {
     let lua_state = agent.lua_state_agent;
     let boma = agent.module_accessor;
     frame(lua_state, 1.0);
-    FT_MOTION_RATE_RANGE(agent, 1.0, 31.0, 11.0);
+    FT_MOTION_RATE_RANGE(agent, 1.0, 31.0, 9.0);
     frame(lua_state, 31.0);
     FT_MOTION_RATE(agent, 1.0);
     if is_excute(agent) {
-        ATTACK(agent, 0, 0, Hash40::new("legl"), 13.0, 361, 100, 0, 35, 4.8, 3.2, 0.0, 0.0, None, None, None, 1.0, 1.0, *ATTACK_SETOFF_KIND_ON, *ATTACK_LR_CHECK_F, false, 0, 0.0, 0, false, false, false, false, true, *COLLISION_SITUATION_MASK_GA, *COLLISION_CATEGORY_MASK_ALL, *COLLISION_PART_MASK_ALL, false, Hash40::new("collision_attr_normal"), *ATTACK_SOUND_LEVEL_L, *COLLISION_SOUND_ATTR_KICK, *ATTACK_REGION_KICK);
-        ATTACK(agent, 1, 0, Hash40::new("kneel"), 12.0, 361, 100, 0, 35, 5.8, 6.0, 0.0, 0.0, None, None, None, 1.0, 1.0, *ATTACK_SETOFF_KIND_ON, *ATTACK_LR_CHECK_F, false, 0, 0.0, 0, false, false, false, false, true, *COLLISION_SITUATION_MASK_GA, *COLLISION_CATEGORY_MASK_ALL, *COLLISION_PART_MASK_ALL, false, Hash40::new("collision_attr_normal"), *ATTACK_SOUND_LEVEL_L, *COLLISION_SOUND_ATTR_KICK, *ATTACK_REGION_KICK);
+        ATTACK(agent, 0, 0, Hash40::new("legl"), 12.0, 93, 100, 130, 0, 4.8, 3.2, 0.0, 0.0, None, None, None, 1.0, 1.0, *ATTACK_SETOFF_KIND_ON, *ATTACK_LR_CHECK_F, false, 0, 0.0, 0, false, false, false, false, true, *COLLISION_SITUATION_MASK_GA, *COLLISION_CATEGORY_MASK_ALL, *COLLISION_PART_MASK_ALL, false, Hash40::new("collision_attr_normal"), *ATTACK_SOUND_LEVEL_L, *COLLISION_SOUND_ATTR_KICK, *ATTACK_REGION_KICK);
+        ATTACK(agent, 1, 0, Hash40::new("kneel"), 12.0, 93, 100, 130, 0, 5.8, 6.0, 0.0, 0.0, None, None, None, 1.0, 1.0, *ATTACK_SETOFF_KIND_ON, *ATTACK_LR_CHECK_F, false, 0, 0.0, 0, false, false, false, false, true, *COLLISION_SITUATION_MASK_GA, *COLLISION_CATEGORY_MASK_ALL, *COLLISION_PART_MASK_ALL, false, Hash40::new("collision_attr_normal"), *ATTACK_SOUND_LEVEL_L, *COLLISION_SOUND_ATTR_KICK, *ATTACK_REGION_KICK);
     }
     wait(lua_state, 5.0);
     if is_excute(agent) {
         AttackModule::clear_all(boma);
     }
     frame(lua_state, 37.0);
-    FT_MOTION_RATE(agent, 0.5);
+    FT_MOTION_RATE(agent, 0.2);
     if is_excute(agent) {
         if StatusModule::situation_kind(boma) == *SITUATION_KIND_AIR {
             notify_event_msc_cmd!(agent, Hash40::new_raw(0x2127e37c07), *GROUND_CLIFF_CHECK_KIND_ALWAYS_BOTH_SIDES);
@@ -48,23 +39,63 @@ unsafe extern "C" fn game_specialairhi(agent: &mut L2CAgentBase) {
     let lua_state = agent.lua_state_agent;
     let boma = agent.module_accessor;
     frame(lua_state, 1.0);
-    FT_MOTION_RATE_RANGE(agent, 1.0, 31.0, 11.0);
+    if is_excute(agent) {
+        if app::sv_kinetic_energy::get_speed_y(lua_state) < 0.0 {
+            KineticModule::mul_speed(boma, &Vector3f{x: 1.0, y: 0.0, z: 1.0}, *KINETIC_ENERGY_RESERVE_ATTRIBUTE_MAIN);
+        }
+    }
+    FT_MOTION_RATE_RANGE(agent, 1.0, 31.0, 9.0);
     frame(lua_state, 31.0);
     FT_MOTION_RATE(agent, 1.0);
     if is_excute(agent) {
-        ATTACK(agent, 0, 0, Hash40::new("legl"), 13.0, 361, 100, 0, 35, 4.8, 3.2, 0.0, 0.0, None, None, None, 1.0, 1.0, *ATTACK_SETOFF_KIND_ON, *ATTACK_LR_CHECK_F, false, 0, 0.0, 0, false, false, false, false, true, *COLLISION_SITUATION_MASK_GA, *COLLISION_CATEGORY_MASK_ALL, *COLLISION_PART_MASK_ALL, false, Hash40::new("collision_attr_normal"), *ATTACK_SOUND_LEVEL_L, *COLLISION_SOUND_ATTR_KICK, *ATTACK_REGION_KICK);
-        ATTACK(agent, 1, 0, Hash40::new("kneel"), 12.0, 361, 100, 0, 35, 5.8, 6.0, 0.0, 0.0, None, None, None, 1.0, 1.0, *ATTACK_SETOFF_KIND_ON, *ATTACK_LR_CHECK_F, false, 0, 0.0, 0, false, false, false, false, true, *COLLISION_SITUATION_MASK_GA, *COLLISION_CATEGORY_MASK_ALL, *COLLISION_PART_MASK_ALL, false, Hash40::new("collision_attr_normal"), *ATTACK_SOUND_LEVEL_L, *COLLISION_SOUND_ATTR_KICK, *ATTACK_REGION_KICK);
+        ATTACK(agent, 0, 0, Hash40::new("legl"), 12.0, 93, 100, 110, 0, 4.8, 3.2, 0.0, 0.0, None, None, None, 1.0, 1.0, *ATTACK_SETOFF_KIND_ON, *ATTACK_LR_CHECK_F, false, 0, 0.0, 0, false, false, false, false, true, *COLLISION_SITUATION_MASK_GA, *COLLISION_CATEGORY_MASK_ALL, *COLLISION_PART_MASK_ALL, false, Hash40::new("collision_attr_normal"), *ATTACK_SOUND_LEVEL_L, *COLLISION_SOUND_ATTR_KICK, *ATTACK_REGION_KICK);
+        ATTACK(agent, 1, 0, Hash40::new("kneel"), 12.0, 93, 100, 110, 0, 5.8, 6.0, 0.0, 0.0, None, None, None, 1.0, 1.0, *ATTACK_SETOFF_KIND_ON, *ATTACK_LR_CHECK_F, false, 0, 0.0, 0, false, false, false, false, true, *COLLISION_SITUATION_MASK_GA, *COLLISION_CATEGORY_MASK_ALL, *COLLISION_PART_MASK_ALL, false, Hash40::new("collision_attr_normal"), *ATTACK_SOUND_LEVEL_L, *COLLISION_SOUND_ATTR_KICK, *ATTACK_REGION_KICK);
     }
     wait(lua_state, 5.0);
     if is_excute(agent) {
         AttackModule::clear_all(boma);
     }
     frame(lua_state, 37.0);
-    FT_MOTION_RATE(agent, 0.3);
+    FT_MOTION_RATE(agent, 0.2);
     if is_excute(agent) {
         if StatusModule::situation_kind(boma) == *SITUATION_KIND_AIR {
             notify_event_msc_cmd!(agent, Hash40::new_raw(0x2127e37c07), *GROUND_CLIFF_CHECK_KIND_ALWAYS_BOTH_SIDES);
         }
+    }
+}
+
+unsafe extern "C" fn effect_specialhi(agent: &mut L2CAgentBase) {
+    let lua_state = agent.lua_state_agent;
+    let boma = agent.module_accessor;
+    frame(lua_state, 31.0);
+    if is_excute(agent) {
+        EFFECT_FOLLOW(agent, Hash40::new("sys_attack_arc_d"), Hash40::new("top"), 0, 16, -0.5, 0, 20, 90, 1.3, true);
+    }
+    frame(lua_state, 35.0);
+    if is_excute(agent) {
+        FLASH(agent, 0, 0, 0, 0.8);
+        BURN_COLOR(agent, 0.2, 0, 1.7, 0.4);
+        ColorBlendModule::set_disable_camera_depth_influence(boma, true);
+        EFFECT(agent, Hash40::new("ganon_entry"), Hash40::new("top"), 6, 15, 0, 0, 0, 0, 0.8, 0, 0, 0, 0, 0, 0, true);
+    }
+    for _ in 0..2 {
+        if is_excute(agent) {
+            EFFECT_FOLLOW(agent, Hash40::new("ganon_entry_aura"), Hash40::new("emit"), 0, 0, 0, 0, 0, 0, 1, true);
+        }
+    }
+}
+
+unsafe extern "C" fn sound_specialhi(agent: &mut L2CAgentBase) {
+    let lua_state = agent.lua_state_agent;
+    let boma = agent.module_accessor;
+    frame(lua_state, 31.0);
+    if is_excute(agent) {
+        PLAY_SE(agent, Hash40::new("vc_ganon_special_h01"));
+        PLAY_SE(agent, Hash40::new("se_ganon_swing_l"));
+    }
+    frame(lua_state, 33.0);
+    if is_excute(agent) {
+        PLAY_SE(agent, Hash40::new("se_ganon_appear01"));
     }
 }
 
@@ -76,13 +107,35 @@ unsafe extern "C" fn game_specialhicatch(agent: &mut L2CAgentBase) {
 unsafe extern "C" fn game_specialhithrow(agent: &mut L2CAgentBase) {
     let lua_state = agent.lua_state_agent;
     let boma = agent.module_accessor;
+    if is_excute(agent) {
+        if StatusModule::situation_kind(boma) == *SITUATION_KIND_AIR {
+            notify_event_msc_cmd!(agent, Hash40::new_raw(0x2127e37c07), *GROUND_CLIFF_CHECK_KIND_ALWAYS_BOTH_SIDES);
+        }
+    }
     frame(lua_state, 3.0);
     if is_excute(agent) {
-        ATTACK(agent, 0, 0, Hash40::new("top"), 12.0, 270, 78, 0, 30, 8.0, 0.0, 5.0, 0.0, Some(0.0), Some(5.0), Some(0.0), 1.0, 1.0, *ATTACK_SETOFF_KIND_OFF, *ATTACK_LR_CHECK_F, false, 1, 0.0, 0, false, false, false, false, true, *COLLISION_SITUATION_MASK_GA, *COLLISION_CATEGORY_MASK_ALL, *COLLISION_PART_MASK_ALL, false, Hash40::new("collision_attr_magic"), *ATTACK_SOUND_LEVEL_M, *COLLISION_SOUND_ATTR_MAGIC, *ATTACK_REGION_BODY);
+        ATTACK(agent, 0, 0, Hash40::new("arml"), 10.0, 270, 78, 0, 30, 6.0, 0.0, -2.0, 0.0, Some(0.0), Some(5.0), Some(0.0), 1.0, 1.0, *ATTACK_SETOFF_KIND_OFF, *ATTACK_LR_CHECK_F, false, 1, 0.0, 0, false, false, false, false, true, *COLLISION_SITUATION_MASK_GA, *COLLISION_CATEGORY_MASK_ALL, *COLLISION_PART_MASK_ALL, false, Hash40::new("collision_attr_purple"), *ATTACK_SOUND_LEVEL_L, *COLLISION_SOUND_ATTR_HEAVY, *ATTACK_REGION_BODY);
+        ATTACK(agent, 1, 0, Hash40::new("hip"), 8.0, 270, 78, 0, 30, 6.0, 0.0, 2.0, 0.0, Some(0.0), Some(5.0), Some(0.0), 1.0, 1.0, *ATTACK_SETOFF_KIND_OFF, *ATTACK_LR_CHECK_F, false, 1, 0.0, 0, false, false, false, false, true, *COLLISION_SITUATION_MASK_GA, *COLLISION_CATEGORY_MASK_ALL, *COLLISION_PART_MASK_ALL, false, Hash40::new("collision_attr_normal"), *ATTACK_SOUND_LEVEL_M, *COLLISION_SOUND_ATTR_HEAVY, *ATTACK_REGION_BODY);
     }
-    wait(lua_state, 8.0);
+    wait(lua_state, 12.0);
     if is_excute(agent) {
         AttackModule::clear_all(boma);
+    }
+}
+
+unsafe extern "C" fn effect_specialhithrow(agent: &mut L2CAgentBase) {
+    let lua_state = agent.lua_state_agent;
+    let boma = agent.module_accessor;
+    frame(lua_state, 1.0);
+    if is_excute(agent) {
+        EFFECT(agent, Hash40::new("ganon_entry"), Hash40::new("top"), 6, 15, 0, 0, 0, 0, 0.8, 0, 0, 0, 0, 0, 0, true);
+    }
+    frame(lua_state, 3.0);
+    if is_excute(agent) {
+        EFFECT(agent, Hash40::new("ganon_raijin_bomb"), Hash40::new("top"), 0, 12, -4, 0, 0, 0, 0.9, 0, 0, 0, 0, 0, 0, true);
+        EFFECT_FOLLOW(agent, Hash40::new("ganon_entry_aura"), Hash40::new("emit"), 0, 0, 0, 0, 0, 0, 1, true);
+        EFFECT_FOLLOW_NO_STOP(agent, Hash40::new("sys_attack_speedline"), Hash40::new("top"), 0, 30, 2, 90, 180, 0, 1.5, true);
+        LAST_PARTICLE_SET_COLOR(agent, 0.8, 0.6, 3);
     }
 }
 
@@ -117,10 +170,9 @@ unsafe extern "C" fn special_hi_pre(fighter: &mut L2CFighterCommon) -> L2CValue 
 
 unsafe extern "C" fn special_hi_init(fighter: &mut L2CFighterCommon) -> L2CValue {
     let sum_speed_x = KineticModule::get_sum_speed_x(fighter.module_accessor, *KINETIC_ENERGY_RESERVE_ATTRIBUTE_MAIN);
-    let sum_speed_y = KineticModule::get_sum_speed_y(fighter.module_accessor, *KINETIC_ENERGY_RESERVE_ATTRIBUTE_MAIN);
-    sv_kinetic_energy!(set_speed, fighter, *FIGHTER_KINETIC_ENERGY_ID_GRAVITY, initial_speed_y);
-    sv_kinetic_energy!(set_accel, fighter, *FIGHTER_KINETIC_ENERGY_ID_GRAVITY, -gravity_accel_y);
-    sv_kinetic_energy!(set_limit_speed, fighter, *FIGHTER_KINETIC_ENERGY_ID_GRAVITY, -gravity_speed);
+    sv_kinetic_energy!(set_speed, fighter, *FIGHTER_KINETIC_ENERGY_ID_GRAVITY, 0.1);
+    sv_kinetic_energy!(set_accel, fighter, *FIGHTER_KINETIC_ENERGY_ID_GRAVITY, -0.1);
+    sv_kinetic_energy!(set_limit_speed, fighter, *FIGHTER_KINETIC_ENERGY_ID_GRAVITY, -0.05);
     sv_kinetic_energy!(set_limit_speed, fighter, *FIGHTER_KINETIC_ENERGY_ID_STOP, sum_speed_x);
     KineticModule::enable_energy(fighter.module_accessor, *FIGHTER_KINETIC_ENERGY_ID_STOP);
     0.into()
@@ -137,12 +189,11 @@ unsafe extern "C" fn special_hi_main(fighter: &mut L2CFighterCommon) -> L2CValue
         KineticModule::change_kinetic(fighter.module_accessor, *FIGHTER_KINETIC_TYPE_AIR_STOP);
         MotionModule::change_motion(fighter.module_accessor, Hash40::new("special_air_hi"), 0.0,1.0, false, 0.0, false, false);
     }
-    WorkModule::set_float(fighter.module_accessor, landing_frame, *FIGHTER_INSTANCE_WORK_ID_FLOAT_LANDING_FRAME);
+    WorkModule::set_float(fighter.module_accessor, 11.0, *FIGHTER_INSTANCE_WORK_ID_FLOAT_LANDING_FRAME);
     fighter.sub_shift_status_main(L2CValue::Ptr(special_hi_main_loop as *const () as _))
 }
 
 unsafe extern "C" fn special_hi_main_loop(fighter: &mut L2CFighterCommon) -> L2CValue {
-    let frame = MotionModule::frame(fighter.module_accessor);    
     if CancelModule::is_enable_cancel(fighter.module_accessor) {
         if fighter.sub_transition_group_check_air_cliff().get_bool() {
             return 1.into();
@@ -206,7 +257,6 @@ unsafe extern "C" fn special_hi_warp_pre(fighter: &mut L2CFighterCommon) -> L2CV
 
 unsafe extern "C" fn special_hi_warp_init(fighter: &mut L2CFighterCommon) -> L2CValue {
     KineticModule::enable_energy(fighter.module_accessor, *FIGHTER_KINETIC_ENERGY_ID_STOP);
-    KineticModule::enable_energy(fighter.module_accessor, *FIGHTER_KINETIC_ENERGY_ID_CONTROL);
     KineticModule::unable_energy(fighter.module_accessor, *FIGHTER_KINETIC_ENERGY_ID_GRAVITY);
     JostleModule::set_status(fighter.module_accessor, false);
     let lr = PostureModule::lr(fighter.module_accessor);
@@ -224,8 +274,8 @@ unsafe extern "C" fn special_hi_warp_init(fighter: &mut L2CFighterCommon) -> L2C
         stick_x = 0.0;
     }
     let normalized = sv_math::vec2_normalize(stick_x, stick_y);
-    let mut speed_x= normalized.x * (warp_speed_mul + warp_speed_add) * lr;
-    let mut speed_y= normalized.y * (warp_speed_mul + warp_speed_add);
+    let speed_x= normalized.x * 2.7 * lr;
+    let mut speed_y= normalized.y * 2.7;
     if fighter.global_table[SITUATION_KIND].get_i32() == *SITUATION_KIND_GROUND {
         stick_y = stick_y.max(0.0);
         if stick_y > warp_stick {
@@ -248,13 +298,12 @@ unsafe extern "C" fn special_hi_warp_main(fighter: &mut L2CFighterCommon) -> L2C
     KineticUtility::clear_unable_energy(*FIGHTER_KINETIC_ENERGY_ID_GRAVITY, fighter.module_accessor);
     fighter.sub_fighter_cliff_check(GROUND_CLIFF_CHECK_KIND_ALWAYS_BOTH_SIDES.into());
     HitModule::set_whole(fighter.module_accessor, HitStatus(*HIT_STATUS_XLU), 0);
-    let correct = if fighter.global_table[SITUATION_KIND].get_i32() == *SITUATION_KIND_GROUND {
-        *GROUND_CORRECT_KIND_GROUND_CLIFF_STOP
-    } 
+    if fighter.global_table[SITUATION_KIND].get_i32() == *SITUATION_KIND_GROUND {
+        GroundModule::set_correct(fighter.module_accessor, GroundCorrectKind(*GROUND_CORRECT_KIND_GROUND));
+    }
     else {
-        *GROUND_CORRECT_KIND_AIR
-    };
-    GroundModule::set_correct(fighter.module_accessor, GroundCorrectKind(correct));
+        GroundModule::set_correct(fighter.module_accessor, GroundCorrectKind(*GROUND_CORRECT_KIND_AIR));
+    }
     MotionModule::change_motion(fighter.module_accessor, Hash40::new("special_hi_catch"), 0.0,1.0, false, 0.0, false, false);
     fighter.sub_shift_status_main(L2CValue::Ptr(special_hi_warp_main_loop as *const () as _))
 }
@@ -264,21 +313,17 @@ unsafe extern "C" fn special_hi_warp_main_loop(fighter: &mut L2CFighterCommon) -
     let entry_id = smash::app::lua_bind::WorkModule::get_int(boma, *FIGHTER_INSTANCE_WORK_ID_INT_ENTRY_ID) as usize;
     let frame = WARP_FRAME[entry_id] as f32;
     if CancelModule::is_enable_cancel(fighter.module_accessor) {
-        if fighter.sub_wait_ground_check_common(false.into()).get_bool() {
+        if fighter.sub_wait_ground_check_common(false.into()).get_bool()
+        || fighter.sub_air_check_fall_common().get_bool() {
             return 1.into();
         }
     }
     if fighter.sub_transition_group_check_air_cliff().get_bool() {
         return 1.into();
     }
-    if fighter.sub_air_check_fall_common().get_bool() {
-        return 1.into();
-    }
     let sum_speed_y = KineticModule::get_sum_speed_y(fighter.module_accessor, *KINETIC_ENERGY_RESERVE_ATTRIBUTE_MAIN);
-    let max_frame_int = frame > max_frame as f32;
-    let min_frame_int = frame > (max_frame - 8) as f32;
-    let stop_cliff = fighter.global_table[SITUATION_KIND].get_i32() == *SITUATION_KIND_GROUND &&
-    GroundModule::is_near_cliff(fighter.module_accessor, 5.0, 5.0) && min_frame_int;
+    let max_frame_int = frame > 20 as f32;
+    let min_frame_int = frame > 12 as f32;
     let stop_ground = fighter.global_table[SITUATION_KIND].get_i32() == *SITUATION_KIND_GROUND &&
     fighter.global_table[PREV_SITUATION_KIND].get_i32() == *SITUATION_KIND_AIR && sum_speed_y < 0.0;
     let stop_air = fighter.global_table[SITUATION_KIND].get_i32() == *SITUATION_KIND_AIR && sum_speed_y < 0.0 && (
@@ -287,8 +332,7 @@ unsafe extern "C" fn special_hi_warp_main_loop(fighter: &mut L2CFighterCommon) -
         GroundModule::is_touch(fighter.module_accessor, *GROUND_TOUCH_FLAG_UP as u32) ||
         GroundModule::is_touch(fighter.module_accessor, *GROUND_TOUCH_FLAG_DOWN as u32)
     );
-    if max_frame_int || stop_ground || stop_air || stop_cliff 
-    || ControlModule::check_button_trigger(fighter.module_accessor, *CONTROL_PAD_BUTTON_GUARD) {
+    if max_frame_int || stop_ground || stop_air {
         fighter.change_status(FIGHTER_GANON_STATUS_KIND_SPECIAL_HI_THROW.into(),false.into());
         return 0.into();
     }
@@ -345,27 +389,17 @@ unsafe extern "C" fn special_hi_slam_pre(fighter: &mut L2CFighterCommon) -> L2CV
     0.into()
 }
 
-unsafe extern "C" fn special_hi_slam_init(fighter: &mut L2CFighterCommon) -> L2CValue {
-    let sum_speed_x = KineticModule::get_sum_speed_x(fighter.module_accessor, *KINETIC_ENERGY_RESERVE_ATTRIBUTE_MAIN);
-    let sum_speed_y = KineticModule::get_sum_speed_y(fighter.module_accessor, *KINETIC_ENERGY_RESERVE_ATTRIBUTE_MAIN);
-    let warp_xy = 0.3;
-    sv_kinetic_energy!(set_speed, fighter, FIGHTER_KINETIC_ENERGY_ID_STOP, sum_speed_x * warp_xy, sum_speed_y * warp_xy);
-    if fighter.global_table[SITUATION_KIND].get_i32() != *SITUATION_KIND_GROUND {
-        sv_kinetic_energy!(set_speed, fighter, FIGHTER_KINETIC_ENERGY_ID_GRAVITY, 0.0);
-        KineticModule::enable_energy(fighter.module_accessor, *FIGHTER_KINETIC_ENERGY_ID_GRAVITY);
-    }
-    0.into()
-}
-
 unsafe extern "C" fn special_hi_slam_main(fighter: &mut L2CFighterCommon) -> L2CValue {
     if fighter.global_table[SITUATION_KIND].get_i32() == *SITUATION_KIND_GROUND {
         GroundModule::set_correct(fighter.module_accessor, GroundCorrectKind(*GROUND_CORRECT_KIND_GROUND));
         KineticModule::change_kinetic(fighter.module_accessor, *FIGHTER_KINETIC_TYPE_GROUND_STOP);
-        MotionModule::change_motion(fighter.module_accessor, Hash40::new("landing_heavy"), 0.0,1.0, false, 0.0, false, false);
+        MotionModule::change_motion(fighter.module_accessor, Hash40::new("landing_fall_special"), 0.0,1.0, false, 0.0, false, false);
     }
     else {
         GroundModule::set_correct(fighter.module_accessor, GroundCorrectKind(*GROUND_CORRECT_KIND_AIR));
         KineticModule::change_kinetic(fighter.module_accessor, *FIGHTER_KINETIC_TYPE_AIR_STOP);
+        KineticModule::clear_speed_all(fighter.module_accessor);
+        KineticModule::add_speed(fighter.module_accessor, &Vector3f{ x: 0.0, y: -4.0, z: 0.0 });
         MotionModule::change_motion(fighter.module_accessor, Hash40::new("special_hi_throw"), 0.0,1.0, false, 0.0, false, false);
     }
     fighter.sub_shift_status_main(L2CValue::Ptr(special_hi_slam_main_loop as *const () as _))
@@ -385,12 +419,12 @@ unsafe extern "C" fn special_hi_slam_main_loop(fighter: &mut L2CFighterCommon) -
     && StatusModule::is_situation_changed(fighter.module_accessor) {
         if fighter.global_table[SITUATION_KIND].get_i32() == *SITUATION_KIND_GROUND 
         && fighter.global_table[PREV_SITUATION_KIND].get_i32() == *SITUATION_KIND_AIR {
-            fighter.change_status(FIGHTER_STATUS_KIND_LANDING.into(),false.into());
+            fighter.change_status(FIGHTER_STATUS_KIND_LANDING_FALL_SPECIAL.into(),false.into());
         }
     }
     if MotionModule::is_end(fighter.module_accessor) {
         if fighter.global_table[SITUATION_KIND].get_i32() != *SITUATION_KIND_GROUND { 
-            fighter.change_status(FIGHTER_STATUS_KIND_FALL_AERIAL.into(), false.into());
+            fighter.change_status(FIGHTER_STATUS_KIND_FALL_SPECIAL.into(), false.into());
         }
         else {
             fighter.change_status(FIGHTER_STATUS_KIND_WAIT.into(), false.into());
@@ -407,8 +441,15 @@ pub fn install() {
     Agent::new("ganon")
         .game_acmd("game_specialhi", game_specialhi, Priority::Low)
         .game_acmd("game_specialairhi", game_specialairhi, Priority::Low)
+        .effect_acmd("effect_specialhi", effect_specialhi, Priority::Low)
+        .effect_acmd("effect_specialairhi", effect_specialhi, Priority::Low)
+        .sound_acmd("sound_specialhi", sound_specialhi, Priority::Low)
+        .sound_acmd("sound_specialairhi", sound_specialhi, Priority::Low)
+
         .game_acmd("game_specialhicatch", game_specialhicatch, Priority::Low)
+
         .game_acmd("game_specialhithrow", game_specialhithrow, Priority::Low)
+        .effect_acmd("effect_specialhithrow", effect_specialhithrow, Priority::Low)
         
         .status(Pre, *FIGHTER_STATUS_KIND_SPECIAL_HI, special_hi_pre) 
         .status(Init, *FIGHTER_STATUS_KIND_SPECIAL_HI, special_hi_init)
@@ -423,7 +464,6 @@ pub fn install() {
         .status(End, *FIGHTER_GANON_STATUS_KIND_SPECIAL_HI_CLING, special_hi_warp_end)
 
         .status(Pre, *FIGHTER_GANON_STATUS_KIND_SPECIAL_HI_THROW, special_hi_slam_pre)
-        .status(Init, *FIGHTER_GANON_STATUS_KIND_SPECIAL_HI_THROW, special_hi_slam_init)
         .status(Main, *FIGHTER_GANON_STATUS_KIND_SPECIAL_HI_THROW, special_hi_slam_main)
         .status(End, *FIGHTER_GANON_STATUS_KIND_SPECIAL_HI_THROW, special_hi_slam_end)
         .install();
