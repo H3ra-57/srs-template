@@ -40,6 +40,10 @@ use smash_script::{
 };
 use smashline::*;
 
+use skyline::nn::ro::LookupSymbol;
+use skyline::hooks::{Region,getRegionAddress};
+use skyline::libc::*;
+
 #[skyline::main(name = "smashline_test")]
 pub fn main() {
     EDIT::install();
