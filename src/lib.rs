@@ -13,7 +13,9 @@
     clippy::borrow_interior_mutable_const
 )]
 
-mod EDIT;
+mod acmd;
+mod opff;
+mod status;
 
 use smash::{
     lib::{
@@ -42,5 +44,7 @@ use smashline::*;
 
 #[skyline::main(name = "smashline_test")]
 pub fn main() {
-    EDIT::install();
+    acmd::install(agent);
+    opff::install();
+    status::install();
 }
