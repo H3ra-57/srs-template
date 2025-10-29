@@ -13,9 +13,15 @@
     clippy::borrow_interior_mutable_const
 )]
 
+pub const VOLLEY: LuaConst = LuaConst::new(0x3);
+
+pub const WEAPON_GANON_VOLLEY_STATUS_KIND_MOVE: LuaConst = LuaConst::new(0x0);
+
 mod acmd;
 mod opff;
 mod status;
+
+mod volley;
 
 use smash::{
     lib::{
@@ -42,9 +48,18 @@ use smash_script::{
 };
 use smashline::*;
 
+#[skyline::from_offset(0x3ac560)]
+pub fn get_battle_object_from_id(id: u32) -> *mut BattleObject;
+
 #[skyline::main(name = "smashline_test")]
 pub fn main() {
+    let agent = &mut Agent::new("ganon");
     acmd::install(agent);
     opff::install();
-    status::install();
+    status::install(agent);
+    agent.install();
+
+    volley::install();
+
+    smashline::clone_weapon("ryu", *smash::lib::lua_const::WEAPON_KIND_RYU_HADOKEN, "ganon", "volley", false);
 }

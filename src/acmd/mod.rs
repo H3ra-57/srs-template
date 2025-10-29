@@ -11,5 +11,5 @@ pub fn install(agent: &mut Agent) {
     neutral::install();
     smashes::install();
     aerials::install();
-    specials::install();
+    specials::install(agent);
 }
