@@ -36,7 +36,7 @@ unsafe extern "C" fn game_specialnshoot(agent: &mut L2CAgentBase) {
     let boma = agent.module_accessor;
     frame(lua_state, 15.0);
     if is_excute(agent) {
-        ArticleModule::generate_article(boma, *VOLLEY, false, -1);
+        ArticleModule::generate_article(boma, VOLLEY, false, -1);
     }
 }
 

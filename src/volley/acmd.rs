@@ -20,7 +20,7 @@ unsafe extern "C" fn effect_move(agent: &mut L2CAgentBase) {
     let lua_state = agent.lua_state_agent;
     let boma = agent.module_accessor;
     if is_excute(agent) {
-        EFFECT_FOLLOW(agent, Hash40::new("sys_sscope_bullet_max"), Hash40::new("top"), 0, 0, 0.5, 180, 0, 0, 0.65, false);
+        EFFECT_FOLLOW(agent, Hash40::new("sys_sscope_bullet_max"), Hash40::new("top"), 0, 0, 0.5, 0, 0, 0, 1.0, false);
     }
 }
 

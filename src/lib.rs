@@ -13,7 +13,7 @@
     clippy::borrow_interior_mutable_const
 )]
 
-pub const VOLLEY: LuaConst = LuaConst::new(0x3);
+pub static mut VOLLEY: i32 = 2;
 
 pub const WEAPON_GANON_VOLLEY_STATUS_KIND_MOVE: LuaConst = LuaConst::new(0x0);
 
@@ -61,5 +61,7 @@ pub fn main() {
 
     volley::install();
 
-    smashline::clone_weapon("ryu", *smash::lib::lua_const::WEAPON_KIND_RYU_HADOKEN, "ganon", "volley", false);
+    unsafe {
+        VOLLEY += smashline::clone_weapon("ryu", *WEAPON_KIND_RYU_HADOKEN, "ganon", "volley", false);
+    }
 }
