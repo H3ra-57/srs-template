@@ -38,7 +38,7 @@ unsafe extern "C" fn move_init(weapon: &mut L2CWeaponCommon) -> L2CValue {
     sv_kinetic_energy!(set_stable_speed, weapon, WEAPON_KINETIC_ENERGY_RESERVE_ID_NORMAL, speed_x, -speed_y);
     sv_kinetic_energy!(set_accel, weapon, WEAPON_KINETIC_ENERGY_RESERVE_ID_NORMAL, 0.0, 0.0);
     KineticModule::enable_energy(weapon.module_accessor, *WEAPON_KINETIC_ENERGY_RESERVE_ID_NORMAL);
-    PostureModule::set_pos(weapon.module_accessor, &Vector3f{x: owner_pos_x, y: owner_pos_y + 25.0, z: owner_pos_z});
+    PostureModule::set_pos(weapon.module_accessor, &Vector3f{x: owner_pos_x, y: owner_pos_y + 20.0, z: owner_pos_z});
     
     return 0.into();
 }
@@ -57,11 +57,11 @@ unsafe extern "C" fn move_main_loop(weapon: &mut L2CWeaponCommon) -> L2CValue {
         notify_event_msc_cmd!(weapon, Hash40::new_raw(0x199c462b5d));
         weapon.pop_lua_stack(1);
     }
-    if GroundModule::is_touch(weapon.module_accessor, *GROUND_TOUCH_FLAG_ALL as u32) {
+    /*if GroundModule::is_touch(weapon.module_accessor, *GROUND_TOUCH_FLAG_ALL as u32) {
         EffectModule::req(weapon.module_accessor, Hash40::new("sys_erace_smoke"), &Vector3f{x: pos.x, y: pos.y, z: pos.z}, &Vector3f{x: 0.0, y: 0.0, z: 0.0}, 1.0, 0, -1, false, 0);
         notify_event_msc_cmd!(weapon, Hash40::new_raw(0x199c462b5d));
         weapon.pop_lua_stack(1);
-    }
+    }*/
     
     return 0.into();
 }
