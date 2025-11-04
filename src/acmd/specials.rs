@@ -4,10 +4,10 @@ use super::*;
 unsafe extern "C" fn game_specialn(agent: &mut L2CAgentBase) {
     let lua_state = agent.lua_state_agent;
     let boma = agent.module_accessor;
-    frame(lua_state, 1.0);
-    FT_MOTION_RATE_RANGE(agent, 1.0, 30.0, 10.0);
+    frame(lua_state, 3.0);
+    FT_MOTION_RATE_RANGE(agent, 3.0, 30.0, 10.0);
     frame(lua_state, 30.0);
-    FT_MOTION_RATE_RANGE(agent, 30.0, 180.0, 100.0);
+    FT_MOTION_RATE_RANGE(agent, 30.0, 180.0, 120.0);
     frame(lua_state, 180.0);
     FT_MOTION_RATE(agent, 1.0);
 }
