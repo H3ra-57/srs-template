@@ -32,7 +32,7 @@ unsafe extern "C" fn move_init(weapon: &mut L2CWeaponCommon) -> L2CValue {
     let speed_y = angle.to_radians().sin() * speed_max;
     WorkModule::set_int(weapon.module_accessor, life, *WEAPON_INSTANCE_WORK_ID_INT_INIT_LIFE);
     WorkModule::set_int(weapon.module_accessor, life, *WEAPON_INSTANCE_WORK_ID_INT_LIFE);
-    ModelModule::set_scale(weapon.module_accessor, 1.5);
+    ModelModule::set_scale(weapon.module_accessor, 1.0 + WorkModule::get_float(ganon_boma, *VOLLEY_SCALE));
     weapon.clear_lua_stack();
     sv_kinetic_energy!(set_speed, weapon, WEAPON_KINETIC_ENERGY_RESERVE_ID_NORMAL, speed_x, -speed_y);
     sv_kinetic_energy!(set_stable_speed, weapon, WEAPON_KINETIC_ENERGY_RESERVE_ID_NORMAL, speed_x, -speed_y);
@@ -72,6 +72,11 @@ unsafe extern "C" fn move_exec(weapon: &mut L2CWeaponCommon) -> L2CValue {
 }
 
 unsafe extern "C" fn move_end(weapon: &mut L2CWeaponCommon) -> L2CValue {
+    let owner_id = WorkModule::get_int(weapon.module_accessor, *WEAPON_INSTANCE_WORK_ID_INT_LINK_OWNER) as u32;
+    let ganon = get_battle_object_from_id(owner_id);
+    let ganon_boma = &mut *(*ganon).module_accessor;
+    WorkModule::set_float(ganon_boma, 0.0, *VOLLEY_DAMAGE);
+    WorkModule::set_float(ganon_boma, 0.0, *VOLLEY_SCALE);
     return 0.into();
 }
 

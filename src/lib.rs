@@ -17,6 +17,11 @@ pub static mut VOLLEY: i32 = 2;
 
 pub const WEAPON_GANON_VOLLEY_STATUS_KIND_MOVE: LuaConst = LuaConst::new(0x0);
 
+pub const VOLLEY_DAMAGE: LuaConst = LuaConst::new(0x52);
+pub const VOLLEY_SCALE: LuaConst = LuaConst::new(0x53);
+
+pub const VOLLEY_EFFECT: LuaConst = LuaConst::new(0x100000C4);
+
 mod acmd;
 mod opff;
 mod status;

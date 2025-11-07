@@ -15,6 +15,22 @@ unsafe extern "C" fn game_specialn(agent: &mut L2CAgentBase) {
 unsafe extern "C" fn effect_specialn(agent: &mut L2CAgentBase) {
     let lua_state = agent.lua_state_agent;
     let boma = agent.module_accessor;
+    frame(lua_state, 3.0);
+    if is_excute(agent) {
+        EFFECT_FOLLOW(agent, Hash40::new("sys_shield_smoke"), Hash40::new("top"), 0, 0, 0.0, 0, 0, 0, 1.0, false);
+        let effect = EffectModule::req_follow(agent.module_accessor, Hash40::new("sys_sscope_bullet_max"), Hash40::new("haver"), &Vector3f{x: 4.0, y: 0.0, z: 0.0}, &Vector3f{x: 0.0, y: 0.0, z: 0.0}, 1.0, true, 0, 0, 0, 0, 0, true, true);
+        WorkModule::set_int(boma, effect as i32, *VOLLEY_EFFECT);
+    }
+}
+
+unsafe extern "C" fn effect_specialairn(agent: &mut L2CAgentBase) {
+    let lua_state = agent.lua_state_agent;
+    let boma = agent.module_accessor;
+    frame(lua_state, 3.0);
+    if is_excute(agent) {
+        let effect = EffectModule::req_follow(agent.module_accessor, Hash40::new("sys_sscope_bullet_max"), Hash40::new("haver"), &Vector3f{x: 4.0, y: 0.0, z: 0.0}, &Vector3f{x: 0.0, y: 0.0, z: 0.0}, 1.0, true, 0, 0, 0, 0, 0, true, true);
+        WorkModule::set_int(boma, effect as i32, *VOLLEY_EFFECT);
+    }
 }
 
 unsafe extern "C" fn sound_specialn(agent: &mut L2CAgentBase) {
@@ -62,7 +78,7 @@ pub fn install(agent: &mut Agent) {
     agent.acmd("expression_specialn", expression_specialn, Priority::Low);
 
     agent.acmd("game_specialairn", game_specialn, Priority::Low);
-    agent.acmd("effect_specialairn", effect_specialn, Priority::Low);
+    agent.acmd("effect_specialairn", effect_specialairn, Priority::Low);
     agent.acmd("sound_specialairn", sound_specialn, Priority::Low);
     agent.acmd("expression_specialairn", expression_specialn, Priority::Low);
 
