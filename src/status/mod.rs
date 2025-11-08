@@ -138,8 +138,8 @@ unsafe extern "C" fn special_n_exec(fighter: &mut L2CFighterCommon) -> L2CValue 
     let frame = MotionModule::frame(fighter.module_accessor);
     let effect = WorkModule::get_int(fighter.module_accessor, *VOLLEY_EFFECT);
     if frame >= 30.0 {
-        WorkModule::add_float(fighter.module_accessor, 0.05, *VOLLEY_DAMAGE);
-        WorkModule::add_float(fighter.module_accessor, 0.01667, *VOLLEY_SCALE);
+        WorkModule::add_float(fighter.module_accessor, 0.06667, *VOLLEY_DAMAGE);
+        WorkModule::add_float(fighter.module_accessor, 0.02, *VOLLEY_SCALE);
         let scale = WorkModule::get_float(fighter.module_accessor, *VOLLEY_SCALE);
         EffectModule::set_scale(fighter.module_accessor, effect as u32, &Vector3f{x: 1.0+scale, y: 1.0+scale, z: 1.0+scale});
     }

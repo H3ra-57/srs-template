@@ -36,6 +36,11 @@ unsafe extern "C" fn effect_specialairn(agent: &mut L2CAgentBase) {
 unsafe extern "C" fn sound_specialn(agent: &mut L2CAgentBase) {
     let lua_state = agent.lua_state_agent;
     let boma = agent.module_accessor;
+    frame(lua_state, 3.0);
+    if is_excute(agent) {
+        PLAY_SEQUENCE(agent, Hash40::new("seq_ganon_rnd_attack"));
+        PLAY_SE(agent, Hash40::new("se_common_elec_m_damage"));
+    }
     frame(lua_state, 30.0);
     if is_excute(agent) {
         PLAY_SE(agent, Hash40::new("se_item_superscope_charge"));
@@ -64,6 +69,10 @@ unsafe extern "C" fn effect_specialnshoot(agent: &mut L2CAgentBase) {
 unsafe extern "C" fn sound_specialnshoot(agent: &mut L2CAgentBase) {
     let lua_state = agent.lua_state_agent;
     let boma = agent.module_accessor;
+    frame(lua_state, 15.0);
+    if is_excute(agent) {
+        PLAY_SE(agent, Hash40::new("vc_ganon_attack08"));
+    }
 }
 
 unsafe extern "C" fn expression_specialnshoot(agent: &mut L2CAgentBase) {
