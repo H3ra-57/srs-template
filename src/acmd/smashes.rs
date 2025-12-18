@@ -123,8 +123,9 @@ unsafe extern "C" fn expression_attacklw4charge(agent: &mut L2CAgentBase) {
     }
 }
 
-pub fn install() {
-    Agent::new("luigi")
+pub fn install(agent: &mut Agent) {
+    agent
+    .set_costume([16].to_vec())
     .acmd("game_attacklw4_cactuar", game_attacklw4, Priority::Low)
     .acmd("effect_attacklw4_cactuar", effect_attacklw4, Priority::Low)
     .acmd("sound_attacklw4_cactuar", sound_attacklw4, Priority::Low)

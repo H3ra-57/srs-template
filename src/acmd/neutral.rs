@@ -60,8 +60,9 @@ unsafe extern "C" fn expression_attack13(agent: &mut L2CAgentBase) {
     }
 }
 
-pub fn install() {
-    Agent::new("luigi")
+pub fn install(agent: &mut Agent) {
+    agent
+    .set_costume([16].to_vec())
     .acmd("game_attack13_cactuar", game_attack13, Priority::Low)
     .acmd("effect_attack13_cactuar", effect_attack13, Priority::Low)
     .acmd("sound_attack13_cactuar", sound_attack13, Priority::Low)
